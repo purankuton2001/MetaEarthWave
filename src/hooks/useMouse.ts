@@ -7,7 +7,7 @@ export const useMouse = () => {
   });
 
   useEffect(() => {
-    const MouseMove = (e) => {
+    const MouseMove = (e: MouseEvent) => {
       setMousePos({mouseX: e.clientX, mouseY: e.clientY});
     };
     window.addEventListener('mousemove', MouseMove);
