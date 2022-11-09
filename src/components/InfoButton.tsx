@@ -2,7 +2,7 @@ import * as React from 'react';
 import {useRef} from 'react';
 
 const InfoButton = (props:any) => {
-  const scaleRef = useRef<SVGAElement>(!null);
+  const scaleRef = useRef<SVGAElement>(null);
   return (
     <svg
       width={'88px'}
