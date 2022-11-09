@@ -10,11 +10,7 @@ const nextConfig = {
       use: [
         options.defaultLoaders.babel,
         {loader: 'raw-loader'},
-        {loader: 'glslify-loader', options: {
-          transform: [
-            ['glslify-hex', {'option-1': true, 'option-2': 42}],
-          ],
-        }},
+        {loader: 'glslify-loader'},
       ],
       exclude: /node_modules/,
     });
