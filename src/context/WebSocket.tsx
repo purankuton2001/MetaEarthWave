@@ -26,7 +26,7 @@ export const useWebSocket = () => {
   const [earthState, setEarthState] = useState<EarthState>();
   const WebSoecketRef = useRef<WebSocket>();
   useEffect(() => {
-    const socket = new WebSocket('ws://meta-earth-wave-backend.herokuapp.com');
+    const socket = new WebSocket('wss://meta-earth-wave-backend.herokuapp.com');
     socket.addEventListener('message', (ev) => {
       const data = JSON.parse(ev.data);
       setEarthState(data);
