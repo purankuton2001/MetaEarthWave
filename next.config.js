@@ -3,6 +3,9 @@ const nextConfig = {
   images: {
     domains: ['pbs.twimg.com'],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   reactStrictMode: true,
   webpack: (config, options) => {
     config.module.rules.push({
