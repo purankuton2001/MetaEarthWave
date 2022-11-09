@@ -1,24 +1,18 @@
 import reportWebVitals from '../reportWebVitals';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {TCanvas} from '../components/TCanvas';
 import {NextPage} from 'next';
 import {ModalPannel} from '../components/ModalPannel';
 import {MessagePannel} from '../components/MessagePannel';
-import {PointPannel} from '../components/PointPannel';
-import {useSession, signIn, signOut} from 'next-auth/react';
 
 export type ModalState = null | string;
 
 const App: NextPage = () => {
-  const {data} = useSession();
-  const [modalState, setModalState] = useState<ModalState>(null);
-  const changeModalState = (state: ModalState) => {
-    setModalState(state);
-  };
+  const [modalState] = useState<ModalState>(null);
 
   return (
-    <div style={{width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden'}}>
-      <div className={'pointPannel'} onClick={signIn}/>
+    <div
+      style={{width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden'}}>
       {/* <PointPannel />*/}
       <MessagePannel modalState={modalState}/>
       <ModalPannel />

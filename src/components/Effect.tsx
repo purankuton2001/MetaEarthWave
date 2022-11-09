@@ -4,21 +4,18 @@ import {EffectComposer, RenderPass, ShaderPass, GlitchPass, BloomPass} from 'thr
 import {extend, useFrame, useThree} from '@react-three/fiber';
 import {DistortionPass} from './postprocessing/DistortionPass';
 import {RipplePass} from './postprocessing/RipplePass';
-import * as ReactPostProcessing from '@react-three/postprocessing';
-import {BlendFunction} from 'postprocessing';
-import {Bloom, Glitch} from '@react-three/postprocessing';
-import {NoisePass} from './postprocessing/NoisePass';
+
 
 extend({EffectComposer, ShaderPass, GlitchPass, RenderPass, BloomPass});
 
 export const Effect: VFC = () => {
-  const dist_datas = useControls('Distortion', {
+  const distDatas = useControls('Distortion', {
     enabled: true,
     progress: {value: 0, min: 0, max: 1, step: 0.01},
     scale: {value: 1, min: 0, max: 5, step: 0.01},
   });
 
-  const ripple_datas = useControls('Ripple', {
+  const rippleDatas = useControls('Ripple', {
     enabled: true,
   });
 
@@ -36,8 +33,8 @@ export const Effect: VFC = () => {
   return (
     <effectComposer ref={composerRef} args={[gl]}>
       <renderPass attachArray="passes" args={[scene, camera]} />
-      <DistortionPass {...dist_datas} />
-      <RipplePass {...ripple_datas} />
+      <DistortionPass {...distDatas} />
+      <RipplePass {...rippleDatas} />
     </effectComposer>
   );
 };

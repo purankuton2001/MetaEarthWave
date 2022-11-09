@@ -1,6 +1,5 @@
 import * as React from 'react';
-import {SVGProps, useEffect, useRef, useState} from 'react';
-import {gsap} from 'gsap';
+import {useRef} from 'react';
 
 const InfoButton = (props:any) => {
   const scaleRef = useRef<SVGAElement>(!null);
@@ -63,18 +62,7 @@ const InfoButton = (props:any) => {
         <filter
           id="b"
         >
-          {/* <feFlood floodOpacity={0.5} result="BackgroundImageFix" />*/}
           <feGaussianBlur stdDeviation={10} />
-          {/* <feComposite*/}
-          {/*  in2="SourceAlpha"*/}
-          {/*  operator="in"*/}
-          {/*  result="effect1_backgroundBlur_6_23"*/}
-          {/* />*/}
-          {/* <feBlend*/}
-          {/*  in="SourceGraphic"*/}
-          {/*  in2="effect1_backgroundBlur_6_23"*/}
-          {/*  result="shape"*/}
-          {/* />*/}
         </filter>
       </defs>
     </svg>

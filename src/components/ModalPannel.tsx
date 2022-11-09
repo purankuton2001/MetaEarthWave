@@ -91,10 +91,6 @@ export const ModalPannel: VFC = () => {
     }
   };
 
-  const buttonMouseEnter = () => {
-    gsap.to(parmeter, {scale: 0.5, transformOrigin: '50% 50%', duration: 0.5});
-    console.log('mouseEnter');
-  };
   useEffect(() => {
     gsap.set('.scale', {x: 12, y: 12, transformOrigin: '50% 50%'});
   }, [modalVisible]);

@@ -14,7 +14,6 @@ type ModalPannelProps = {
   changeModalState?: any
 }
 export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
-  const language = useLanguage();
   const earthState: any = useWebSocket();
   useEffect(() => {
     gsap.set('.messagePannel', {x: '100%'});

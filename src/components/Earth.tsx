@@ -3,11 +3,14 @@ import {EarthProps} from '../../types/util';
 import {useFrame} from '@react-three/fiber';
 import {useRef} from 'react';
 import {EarthShader} from '../../shader/EarthShader';
+import {Mesh} from 'three';
 
 export default function Earth({position}: EarthProps) {
-  const ref = useRef();
+  const ref = useRef<Mesh>();
   useFrame(() => {
-    ref.current.rotation.y += 0.002;
+    if (ref.current) {
+      ref.current.rotation.y += 0.002;
+    }
   });
   return (
     <mesh position={position} ref={ref}>
