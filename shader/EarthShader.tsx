@@ -1,12 +1,11 @@
-import {useControls} from 'leva';
-import React, {useContext, useEffect, useMemo, useRef, VFC} from 'react';
-import {extend, useFrame} from '@react-three/fiber';
+import React, {useEffect, useMemo, useRef} from 'react';
+import {useFrame} from '@react-three/fiber';
 import EarthFrag from './Earth.frag';
 import EarthVert from './Earth.vert';
 import {ShaderMaterial, Uniform, Vector2, Vector3, Vector4} from 'three';
 import {useWindowSize} from '../src/hooks/useWindowSize';
 import {useTexture} from '@react-three/drei';
-import {EarthContext, useWebSocket, useWebsocket} from '../src/context/WebSocket';
+import {useWebSocket} from '../src/context/WebSocket';
 
 
 export const EarthShader = () => {
