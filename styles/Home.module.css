@@ -2,6 +2,7 @@
   padding: 0 2rem;
 }
 
+
 .main {
   min-height: 100vh;
   padding: 4rem 0;
@@ -10,6 +11,21 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.modalPanel{
+  width: 40vw;
+  height: 80vh;
+  position: absolute;
+  opacity: 0.5;
+  backdropFilter: blur(15px);
+  zIndex: 30;
+  background: white;
+  margin: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0
 }
 
 .footer {
