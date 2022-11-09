@@ -20,7 +20,6 @@ export const TCanvas: VFC = () => {
         near: 0.1,
         far: 2000,
       }}>
-      <PointPannel />
       <OrbitControls attach="orbitControls" enableZoom={false} enablePan={false}/>
       <Stats />
       <Suspense fallback={null}>

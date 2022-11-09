@@ -4,6 +4,7 @@ import {TCanvas} from '../components/TCanvas';
 import {NextPage} from 'next';
 import {ModalPannel} from '../components/ModalPannel';
 import {MessagePannel} from '../components/MessagePannel';
+import {PointPannel} from '../components/PointPannel';
 
 export type ModalState = null | string;
 
@@ -13,7 +14,7 @@ const App: NextPage = () => {
   return (
     <div
       style={{width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden'}}>
-      {/* <PointPannel />*/}
+      <PointPannel />
       <MessagePannel modalState={modalState}/>
       <ModalPannel />
       <TCanvas />
