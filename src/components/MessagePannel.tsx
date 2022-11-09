@@ -2,12 +2,10 @@ import React, {useEffect,　VFC} from 'react';
 import {Icon} from '@chakra-ui/react';
 import {AiOutlineClose} from 'react-icons/ai';
 import {gsap} from 'gsap';
-import {useWindowSize} from '../hooks/useWindowSize';
-import {useLanguage} from '../hooks/useLanguage';
 import {useWebSocket} from '../context/WebSocket';
 import Image from 'next/image';
 import {ModalState} from '../pages';
-import {FiMessageCircle} from 'react-icons/Fi';
+import {FiMessageCircle} from 'react-icons/fi';
 
 type ModalPannelProps = {
   modalState: ModalState,
