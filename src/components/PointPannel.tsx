@@ -1,7 +1,7 @@
 import React, {useEffect,　VFC} from 'react';
 import {useLanguage} from '../hooks/useLanguage';
 import {useWebSocket} from '../context/WebSocket';
-import {useSession} from 'next-auth/react';
+import {useSession, getSession} from 'next-auth/react';
 
 
 export const PointPannel: VFC = () => {
@@ -18,3 +18,4 @@ export const PointPannel: VFC = () => {
     </div>
   );
 };
+

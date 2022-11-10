@@ -22,10 +22,11 @@ export const authOptions = {
     async session({session, token, user}:any) {
       // Send properties to the client, like an access_token from a provider.
       // @ts-ignore
-      session.accessToken = token.accessToken;
+      session.user.token = token;
       return session;
     },
   },
 };
 
+// @ts-ignore
 export default NextAuth(authOptions);
