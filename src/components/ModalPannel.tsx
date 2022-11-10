@@ -4,8 +4,8 @@ import {AiOutlineClose} from 'react-icons/ai';
 import {IoEarth} from 'react-icons/io5';
 import InfoButton from './InfoButton';
 import {gsap} from 'gsap';
-import {useWindowSize} from '../hooks/useWindowSize';
 import {useLanguage} from '../hooks/useLanguage';
+import {signIn} from 'next-auth/react';
 
 
 export const ModalPannel: VFC = () => {
@@ -125,12 +125,10 @@ export const ModalPannel: VFC = () => {
         <div className={'modalMediamText'}>{joinMediumText(language)}</div>
         <div className={'modalEmotion lightBlue'}>{joinEmotionSkyBlue(language)}</div>
         <div className={'modalEmotion magenta'}>{joinEmotionMagenta(language)}</div>
-        <a href={'https://twitter.com/intent/tweet?url=http://localhost:3000&hashtags=MetaEarthWave'}
-          className={'tweetButton'}
-          target="_blank"
-          rel="noreferrer">
+        <div onClick={() => signIn()}
+          className={'tweetButton'}>
           {tweetButton(language)}
-        </a>
+        </div>
       </div>}
       {!modalVisible && <div
         onClick={() => {
