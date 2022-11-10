@@ -23,7 +23,7 @@ export const authOptions = {
       // Send properties to the client, like an access_token from a provider.
       // @ts-ignore
       session.user.token = token;
-      return session;
+      return {...session, ...token};
     },
   },
 };
