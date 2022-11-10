@@ -14,7 +14,7 @@ export const PointPannel: VFC = () => {
   return (
     <div className={'pointPannel'}>
       {// @ts-ignore
-        data?.user?.name }
+        data?.user?.name + data?.accessToken}
     </div>
   );
 };
