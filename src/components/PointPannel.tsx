@@ -9,7 +9,7 @@ export const PointPannel: VFC = () => {
   const earthState: any = useWebSocket();
   const {data} = useSession();
   // @ts-ignore
-  console.log(data?.accessToken);
+  console.log(data);
 
   return (
     <div className={'pointPannel'}>
