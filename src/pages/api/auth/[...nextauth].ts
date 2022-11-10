@@ -17,13 +17,13 @@ export const authOptions = {
       if (account) {
         token.accessToken = account.access_token;
       }
-      return token;
+      return {...token, ...account};
     },
     async session({session, token, user}:any) {
       // Send properties to the client, like an access_token from a provider.
       // @ts-ignore
       session.user.token = token;
-      return {...session, ...token};
+      return {...session};
     },
   },
 };
