@@ -5,6 +5,7 @@ import {NextPage} from 'next';
 import {ModalPannel} from '../components/ModalPannel';
 import {MessagePannel} from '../components/MessagePannel';
 import {PointPannel} from '../components/PointPannel';
+import {useSession} from 'next-auth/react';
 
 export type ModalState = null | string;
 
