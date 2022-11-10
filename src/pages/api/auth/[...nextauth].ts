@@ -9,7 +9,7 @@ export default NextAuth({
       clientSecret: <string>process.env.TWITTER_SECRET,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXT_PUBLIC_AUTHSECRET,
   callbacks: {
     async jwt({token, account}) {
       // Persist the OAuth access_token to the token right after signin
