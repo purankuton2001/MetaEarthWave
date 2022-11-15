@@ -38,16 +38,16 @@ export const TweetPannel: VFC<TweetPannelProps> =
         if (!session) {
           router.push('/');
         }
-        console.log(data);
       }, [session]);
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
           tweetText,
           // @ts-ignore
-          accessToken: data?.user?.token?.oauth_token,
+          accessToken: data?.user?.token?.account.oauth_token,
           // @ts-ignore
-          accessTokenSecret: data?.user?.token?.oauth_token_secret,
+          accessTokenSecret: data?.user?.token?.account.oauth_token_secret,
         };
+        console.log(sendTweetData);
         earthState?.socket.send(JSON.stringify(sendTweetData));
       };
       return (
