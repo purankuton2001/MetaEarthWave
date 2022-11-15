@@ -5,19 +5,32 @@ import {NextPage} from 'next';
 import {ModalPannel} from '../components/ModalPannel';
 import {MessagePannel} from '../components/MessagePannel';
 import {PointPannel} from '../components/PointPannel';
+import {useRouter} from 'next/router';
+import {TweetPannel} from '../components/TweetPannel';
 
 export type ModalState = null | string;
 
 const App: NextPage = () => {
+  const router = useRouter();
+  const {tweetBox} = router.query;
   const [modalState] = useState<ModalState>(null);
 
   return (
     <div
-      style={{width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden'}}>
+      style={{width: '100vw',
+        height: '100vh',
+        position: 'relative',
+        overflow: 'hidden'}}>
       <PointPannel />
       <MessagePannel modalState={modalState}/>
       <ModalPannel />
       <TCanvas />
+      <TweetPannel
+        isOpen={Boolean(tweetBox)}
+        onOpen={() => {}}
+        onClose={() => {
+          router.push('/');
+        }} />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, {useEffect,　VFC} from 'react';
+import React, {useEffect, VFC} from 'react';
 import {Icon} from '@chakra-ui/react';
 import {AiOutlineClose} from 'react-icons/ai';
 import {gsap} from 'gsap';

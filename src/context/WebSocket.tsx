@@ -20,6 +20,7 @@ type EarthState={
     positiveScore: number,
     negativeScore: number
   }
+  socket: WebSocket,
 }
 
 export const useWebSocket = () => {
@@ -29,12 +30,10 @@ export const useWebSocket = () => {
     const socket = new WebSocket('wss://meta-earth-wave-backend.herokuapp.com');
     socket.addEventListener('message', (ev) => {
       const data = JSON.parse(ev.data);
-      setEarthState(data);
-      console.log(data);
+      setEarthState({...data, socket});
     });
     WebSoecketRef.current = socket;
   }, []);
-  console.log(earthState);
   return earthState;
 };
 

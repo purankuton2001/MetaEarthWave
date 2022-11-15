@@ -5,7 +5,9 @@ import {IoEarth} from 'react-icons/io5';
 import InfoButton from './InfoButton';
 import {gsap} from 'gsap';
 import {useLanguage} from '../hooks/useLanguage';
-import {signIn} from 'next-auth/react';
+import {signIn, useSession} from 'next-auth/react';
+import {useWebSocket} from '../context/WebSocket';
+import {Alert} from '@reach/alert';
 
 
 export const ModalPannel: VFC = () => {
@@ -14,6 +16,8 @@ export const ModalPannel: VFC = () => {
   const parmeter = {
     scale: 0.15,
   };
+
+
   function conceptTitle(lang: string) {
     switch (lang) {
       case 'ja':
@@ -123,9 +127,13 @@ export const ModalPannel: VFC = () => {
         <h2 className={'modalTitle'}>{joinTitle(language)}</h2>
         <div className={'modalText2'}>{joinDescription(language)}</div>
         <div className={'modalMediamText'}>{joinMediumText(language)}</div>
-        <div className={'modalEmotion lightBlue'}>{joinEmotionSkyBlue(language)}</div>
-        <div className={'modalEmotion magenta'}>{joinEmotionMagenta(language)}</div>
-        <div onClick={() => signIn()}
+        <div className={'modalEmotion lightBlue'}>
+          {joinEmotionSkyBlue(language)}
+        </div>
+        <div className={'modalEmotion magenta'}>
+          {joinEmotionMagenta(language)}
+        </div>
+        <div onClick={() => signIn('twitter', {callbackUrl: '/?tweetBox=true'})}
           className={'tweetButton'}>
           {tweetButton(language)}
         </div>
