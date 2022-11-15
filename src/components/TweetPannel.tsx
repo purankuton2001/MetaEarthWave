@@ -38,6 +38,7 @@ export const TweetPannel: VFC<TweetPannelProps> =
         if (!session) {
           router.push('/');
         }
+        console.log(data);
       }, [session]);
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
