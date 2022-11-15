@@ -13,6 +13,7 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import {useSession} from 'next-auth/react';
+import {useRouter} from 'next/router';
 
 type TweetPannelProps = {
   isOpen: boolean;
@@ -28,9 +29,16 @@ type SendTweetData = {
 
 export const TweetPannel: VFC<TweetPannelProps> =
     ({isOpen, onOpen, onClose}) => {
-      const [tweetText, setTweetText] = useState<string>(null);
-      const {data} = useSession();
+      const [tweetText, setTweetText] = useState<string>(null!);
+      const session = useSession();
+      const router = useRouter();
+      const {data} = session;
       const earthState = useWebSocket();
+      useEffect(() => {
+        if (!session) {
+          router.push('/');
+        }
+      }, [session]);
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
           tweetText,
