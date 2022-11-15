@@ -42,7 +42,9 @@ export const TweetPannel: VFC<TweetPannelProps> =
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
           tweetText,
+          // @ts-ignore
           accessToken: data?.user?.token?.oauth_token,
+          // @ts-ignore
           accessTokenSecret: data?.user?.token?.oauth_token_secret,
         };
         earthState?.socket.send(JSON.stringify(sendTweetData));
