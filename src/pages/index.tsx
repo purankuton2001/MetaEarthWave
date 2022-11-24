@@ -9,22 +9,18 @@ import {useRouter} from 'next/router';
 import {TweetPannel} from '../components/TweetPannel';
 // @ts-ignore
 import {Howl} from 'howler';
+import {useWindowSize} from '../hooks/useWindowSize';
 
 export type ModalState = null | string;
 
 const App: NextPage = () => {
-  const [direction, setDirection] = useState<number>();
-  useLayoutEffect(() => {
-    addEventListener('orientationchange', () => {
-      if (screen?.orientation?.angle) setDirection(Math.abs(screen.orientation.angle));
-    });
-  }, []);
   const router = useRouter();
   const audio = useRef(new Howl({
     src: '/assets/frozen.wav',
     html5: true,
     loop: true,
   }));
+  const {width, height} = useWindowSize();
   useLayoutEffect(() => {
     audio.current.on('load', () => {
       console.log(audio.current.playing());
@@ -36,10 +32,7 @@ const App: NextPage = () => {
 
   return (
     <>
-      <div>
-        {direction}
-      </div>
-      {(!direction || direction === 90) && <div
+      {(height < width) && <div
         style={{
           width: '100vw',
           height: '100vh',
@@ -56,7 +49,7 @@ const App: NextPage = () => {
             router.push('/');
           }} />
       </div>}
-      {(direction === 0) && <div>
+      {(height > width) && <div>
         縦向き
       </div>}
     </>
