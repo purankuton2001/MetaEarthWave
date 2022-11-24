@@ -37,7 +37,7 @@ const App: NextPage = () => {
   return (
     <>
       <div>
-        direction
+        {direction}
       </div>
       {(!direction || direction === 90) && <div
         style={{
