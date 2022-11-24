@@ -16,8 +16,10 @@ export type ModalState = null | string;
 const App: NextPage = () => {
   const [direction, setDirection] = useState<number>();
   useLayoutEffect(() => {
-    if (window) {
-      setDirection(window.orientation);
+    if (screen) {
+      addEventListener('orientationchange', () => {
+        setDirection(screen.orientation.angle);
+      });
     }
   }, []);
   const router = useRouter();
@@ -36,26 +38,31 @@ const App: NextPage = () => {
   const [modalState] = useState<ModalState>(null);
 
   return (
-    <div
-      style={{
-        transformOrigin: 'center',
-        transform: direction === 0 || direction === 180 ?
+    <>
+      {(!direction || direction % 180 === 0) && <div
+        style={{
+          transformOrigin: 'center',
+          transform: direction === 0 || direction === 180 ?
             `rotate(${90 - window.orientation }deg)` : undefined,
-        width: '100vw',
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden'}}>
-      <PointPannel />
-      <MessagePannel modalState={modalState}/>
-      <ModalPannel />
-      <TCanvas />
-      <TweetPannel
-        isOpen={Boolean(tweetBox)}
-        onOpen={() => {}}
-        onClose={() => {
-          router.push('/');
-        }} />
-    </div>
+          width: '100vw',
+          height: '100vh',
+          position: 'relative',
+          overflow: 'hidden'}}>
+        <PointPannel />
+        <MessagePannel modalState={modalState}/>
+        <ModalPannel />
+        <TCanvas />
+        <TweetPannel
+          isOpen={Boolean(tweetBox)}
+          onOpen={() => {}}
+          onClose={() => {
+            router.push('/');
+          }} />
+      </div>}
+      {direction && direction % 180 === 90 && <div>
+        縦向き
+      </div>}
+    </>
   );
 };
 
