@@ -16,7 +16,7 @@ const App: NextPage = () => {
   const [direction, setDirection] = useState<number>();
   useLayoutEffect(() => {
     addEventListener('orientationchange', () => {
-      setDirection(screen.orientation.angle);
+      if (screen?.orientation?.angle) setDirection(Math.abs(screen.orientation.angle));
     });
   }, []);
   const router = useRouter();
@@ -36,15 +36,15 @@ const App: NextPage = () => {
 
   return (
     <>
-      {!direction || Math.abs(direction) === 90 && <div
+      <div>
+        {Math.abs(direction)}
+      </div>
+      {(!direction || direction === 90) && <div
         style={{
           width: '100vw',
           height: '100vh',
           position: 'relative',
           overflow: 'hidden'}}>
-        <div>
-          {Math.abs(direction)}
-        </div>
         <PointPannel />
         <MessagePannel modalState={modalState}/>
         <ModalPannel />
@@ -56,7 +56,7 @@ const App: NextPage = () => {
             router.push('/');
           }} />
       </div>}
-      {(direction && direction % 180 === 0) && <div>
+      {(direction === 0) && <div>
         縦向き
       </div>}
     </>
