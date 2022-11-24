@@ -9,18 +9,15 @@ import {useRouter} from 'next/router';
 import {TweetPannel} from '../components/TweetPannel';
 // @ts-ignore
 import {Howl} from 'howler';
-import {rotate} from 'next/dist/server/lib/squoosh/impl';
 
 export type ModalState = null | string;
 
 const App: NextPage = () => {
   const [direction, setDirection] = useState<number>();
   useLayoutEffect(() => {
-    if (screen) {
-      addEventListener('orientationchange', () => {
-        setDirection(screen.orientation.angle);
-      });
-    }
+    addEventListener('orientationchange', () => {
+      setDirection(screen.orientation.angle);
+    });
   }, []);
   const router = useRouter();
   const audio = useRef(new Howl({
@@ -39,15 +36,15 @@ const App: NextPage = () => {
 
   return (
     <>
-      {(!direction || direction % 180 === 0) && <div
+      {!direction || Math.abs(direction) === 90 && <div
         style={{
-          transformOrigin: 'center',
-          transform: direction === 0 || direction === 180 ?
-            `rotate(${90 - window.orientation }deg)` : undefined,
           width: '100vw',
           height: '100vh',
           position: 'relative',
           overflow: 'hidden'}}>
+        <div>
+          {Math.abs(direction)}
+        </div>
         <PointPannel />
         <MessagePannel modalState={modalState}/>
         <ModalPannel />
@@ -59,7 +56,7 @@ const App: NextPage = () => {
             router.push('/');
           }} />
       </div>}
-      {direction && direction % 180 === 90 && <div>
+      {(direction && direction % 180 === 0) && <div>
         縦向き
       </div>}
     </>

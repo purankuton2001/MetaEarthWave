@@ -21,7 +21,7 @@ export const TCanvas: VFC = () => {
         far: 2000,
       }}>
       <OrbitControls attach="orbitControls" enableZoom={false} enablePan={false}/>
-      <Stats />
+      {/* <Stats />*/}
       <Suspense fallback={null}>
         <ambientLight />
         <Earth position={new Vector3(0, 0, 0)}/>
