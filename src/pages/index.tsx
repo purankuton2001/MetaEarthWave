@@ -14,9 +14,10 @@ import {rotate} from 'next/dist/server/lib/squoosh/impl';
 export type ModalState = null | string;
 
 const App: NextPage = () => {
+  const [direction, setDirection] = useState<number>();
   useLayoutEffect(() => {
     if (window) {
-      console.log(window.orientation);
+      setDirection(window.orientation);
     }
   }, []);
   const router = useRouter();
@@ -38,7 +39,7 @@ const App: NextPage = () => {
     <div
       style={{
         transformOrigin: 'center',
-        transform: window?.orientation === 0 || window?.orientation === 180 ?
+        transform: direction === 0 || direction === 180 ?
             `rotate(${90 - window.orientation }deg)` : undefined,
         width: '100vw',
         height: '100vh',
