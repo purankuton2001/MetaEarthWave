@@ -9,6 +9,7 @@ import {useRouter} from 'next/router';
 import {TweetPannel} from '../components/TweetPannel';
 // @ts-ignore
 import {Howl} from 'howler';
+import {rotate} from 'next/dist/server/lib/squoosh/impl';
 
 export type ModalState = null | string;
 
@@ -35,7 +36,11 @@ const App: NextPage = () => {
 
   return (
     <div
-      style={{width: '100vw',
+      style={{
+        transformOrigin: 'center',
+        transform: window.orientation === 0 || window.orientation === 180 ?
+            `rotate(${90 - window.orientation }deg)` : undefined,
+        width: '100vw',
         height: '100vh',
         position: 'relative',
         overflow: 'hidden'}}>
