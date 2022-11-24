@@ -38,7 +38,7 @@ const App: NextPage = () => {
     <div
       style={{
         transformOrigin: 'center',
-        transform: window.orientation === 0 || window.orientation === 180 ?
+        transform: window?.orientation === 0 || window?.orientation === 180 ?
             `rotate(${90 - window.orientation }deg)` : undefined,
         width: '100vw',
         height: '100vh',
