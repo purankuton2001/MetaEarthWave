@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import {useSession} from 'next-auth/react';
 import {useRouter} from 'next/router';
+import {useGeoPosition} from '../hooks/useGeoPosition';
 
 type TweetPannelProps = {
   isOpen: boolean;
@@ -24,6 +25,7 @@ type SendTweetData = {
     tweetText: string,
     accessToken: string,
     accessTokenSecret: string,
+    loc: number[],
 }
 
 
@@ -34,6 +36,7 @@ export const TweetPannel: VFC<TweetPannelProps> =
       const router = useRouter();
       const {data} = session;
       const earthState = useWebSocket();
+      const loc = useGeoPosition();
       useEffect(() => {
         if (!session) {
           router.push('/');
@@ -46,8 +49,8 @@ export const TweetPannel: VFC<TweetPannelProps> =
           accessToken: data?.user?.token?.account.oauth_token,
           // @ts-ignore
           accessTokenSecret: data?.user?.token?.account.oauth_token_secret,
+          loc: [loc[1], loc[0]],
         };
-        console.log(sendTweetData);
         earthState?.socket.send(JSON.stringify(sendTweetData));
       };
       return (

@@ -19,10 +19,7 @@ export const EarthShader = () => {
     const limitTime = now.setMinutes(now.getMinutes() - 1);
     earthState?.tweets.forEach(({score, loc, time}) => {
       if (Date.parse(time) >= limitTime) {
-        console.log(score);
-        console.log((loc[1][0] + loc[2][0])/2);
-        console.log((loc[0][1] + loc[1][1])/2);
-        addWave((loc[0][1] + loc[1][1])/2, (loc[1][0] + loc[2][0])/2, score);
+        addWave(loc[1], loc[0], score);
       }
     });
   }, [earthState]);

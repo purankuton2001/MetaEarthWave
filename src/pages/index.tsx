@@ -1,5 +1,5 @@
 import reportWebVitals from '../reportWebVitals';
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {TCanvas} from '../components/TCanvas';
 import {NextPage} from 'next';
 import {ModalPannel} from '../components/ModalPannel';
@@ -7,11 +7,29 @@ import {MessagePannel} from '../components/MessagePannel';
 import {PointPannel} from '../components/PointPannel';
 import {useRouter} from 'next/router';
 import {TweetPannel} from '../components/TweetPannel';
+// @ts-ignore
+import {Howl} from 'howler';
 
 export type ModalState = null | string;
 
 const App: NextPage = () => {
+  useLayoutEffect(() => {
+    if (window) {
+      console.log(window.orientation);
+    }
+  }, []);
   const router = useRouter();
+  const audio = useRef(new Howl({
+    src: '/assets/frozen.wav',
+    html5: true,
+    loop: true,
+  }));
+  useLayoutEffect(() => {
+    audio.current.on('load', () => {
+      console.log(audio.current.playing());
+    });
+    audio.current.load();
+  }, []);
   const {tweetBox} = router.query;
   const [modalState] = useState<ModalState>(null);
 

@@ -1,9 +1,9 @@
-import React, {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 type Loc = number[];
 type Tweet = {
   _id: string,
   score: number,
-  loc: Loc[],
+  loc: Loc,
   account: {
     id: number,
     name: string,

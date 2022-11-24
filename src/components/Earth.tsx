@@ -9,7 +9,7 @@ export default function Earth({position}: EarthProps) {
   const ref = useRef<Mesh>();
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.y += 0.002;
+      ref.current.rotation.y += 0.001;
     }
   });
   return (
