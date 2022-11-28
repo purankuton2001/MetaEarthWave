@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useLayoutEffect, useRef, useState} from 'react';
 type Loc = number[];
 type Tweet = {
   _id: string,
@@ -25,14 +25,17 @@ type EarthState={
 
 export const useWebSocket = () => {
   const [earthState, setEarthState] = useState<EarthState>();
-  const WebSoecketRef = useRef<WebSocket>();
-  useEffect(() => {
-    const socket = new WebSocket('wss://meta-earth-wave-backend.herokuapp.com');
+  const WebSocketRef = useRef<WebSocket>();
+  useLayoutEffect(() => {
+    if (!process.env.NEXT_PUBLIC_WEBSOCKET_URL) {
+      return;
+    }
+    const socket = new WebSocket(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
     socket.addEventListener('message', (ev) => {
       const data = JSON.parse(ev.data);
       setEarthState({...data, socket});
     });
-    WebSoecketRef.current = socket;
+    WebSocketRef.current = socket;
   }, []);
   return earthState;
 };
