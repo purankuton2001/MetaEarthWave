@@ -1,4 +1,4 @@
-import React, {useEffect, VFC} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState, VFC} from 'react';
 import {Icon} from '@chakra-ui/react';
 import {AiOutlineClose} from 'react-icons/ai';
 import {gsap} from 'gsap';
@@ -12,8 +12,10 @@ type ModalPannelProps = {
   changeModalState?: any
 }
 export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
+  const [loading, setLoading] = useState<boolean>(false);
   const earthState: any = useWebSocket();
-  useEffect(() => {
+  const messageList = useRef<HTMLDivElement>(null!);
+  useLayoutEffect(() => {
     gsap.set('.messagePannel', {x: '100%'});
   }, []);
   return (
@@ -29,7 +31,7 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
             color={'whiteAlpha.500'}/>
         </div>
         <div className={'messageList'}>
-          {earthState?.tweets.map((tweet: any, index: number) => {
+          {!loading && earthState?.tweets.map((tweet: any, index: number) => {
             return (<div className={'messageItem'} key={index}>
               <div className={'messageHeader'}>
                 <Image
@@ -44,11 +46,17 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
             </div>);
           })
           }
+          <div className={'messageListBottom'} ref={messageList} />
         </div>
       </div>
       {modalState === null && <div
         onClick={() => {
+          setLoading(true);
           gsap.to('.messagePannel', {x: 0, duration: 0.5});
+          setTimeout(() => {
+            setLoading(false);
+            messageList.current.scrollIntoView();
+          }, 500);
         }}
         onMouseEnter={(event) => {
           gsap.to('.messageButton', {scale: 1.3, duration: 0.5});

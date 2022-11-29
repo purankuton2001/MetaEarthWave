@@ -173,7 +173,11 @@
 	height: 100%;
 	overflow: scroll;
 	scrollbar-width: none;
-
+}
+.messageListBottom {
+	width: 100%;
+	height: 0px;
+	opacity: 0;
 }
 .messageButton{
 	cursor: pointer;
