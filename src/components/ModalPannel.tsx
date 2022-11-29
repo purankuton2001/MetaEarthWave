@@ -8,6 +8,14 @@ import {useLanguage} from '../hooks/useLanguage';
 import {signIn, useSession} from 'next-auth/react';
 import {useWebSocket} from '../context/WebSocket';
 import {Alert} from '@reach/alert';
+import {
+  conceptDescription,
+  conceptTitle,
+  joinDescription,
+  joinEmotionMagenta, joinEmotionSkyBlue,
+  joinMediumText,
+  joinTitle,
+} from '../utils/translateText';
 
 
 export const ModalPannel: VFC = () => {
@@ -18,74 +26,6 @@ export const ModalPannel: VFC = () => {
   };
 
 
-  function conceptTitle(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return 'コンセプト';
-      default:
-        return 'Concept';
-    }
-  };
-  function conceptDescription(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return 'インターネット,SNS,メタバース上では' +
-            '価値観,国籍,ジェンダー,社会的地位,人種,思想を問わず' +
-            '様々なコミュニケーションがされている。' +
-            'それによって、あらゆる波が生まれ、' +
-            '世界各地で出会うはずのないものが混ざり合っている。' +
-            'それによって生じる共感,希望,革新, そして、混乱,分断,衝突すらも' +
-            'しなやかに受け流す流体の世界を描いた';
-      default:
-        return 'On the Internet, SNS, and metaverse, people communicate with ' +
-            'each other regardless of values, nationality, gender, social status, ' +
-            'race, or ideology. This creates various waves and mixes things that ' +
-            'would never have met elsewhere. It depicts a fluid world of empathy, hope, ' +
-            'innovation, and a supple acceptance of confusion, division, and even conflict.';
-    }
-  };
-  function joinTitle(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return '参加しよう!';
-      default:
-        return 'Join!';
-    }
-  };
-
-  function joinDescription(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return 'このサイトのリンクを貼ってあなたのいる場所の地理タグを付けてツイートするとその場所から波が生じます!';
-      default:
-        return 'Tweet a link to this site with your current location geo-tagged and a wave will be generated from that location!';
-    }
-  };
-  function joinMediumText(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return 'ツイートの内容をAIが感情分析';
-      default:
-        return 'AI analyzes the content of tweets for emotion';
-    }
-  };
-  function joinEmotionSkyBlue(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return '＋ : スカイブルー';
-      default:
-        return '+ : SkyBlue';
-    }
-  };
-
-  function joinEmotionMagenta(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return '－ : マゼンタ';
-      default:
-        return '－ : Magenta';
-    }
-  };
   function tweetButton(lang: string) {
     switch (lang) {
       case 'ja':
@@ -117,7 +57,11 @@ export const ModalPannel: VFC = () => {
             right: '50px',
             bottom: '42px'});
           setTimeout(() => {
-            gsap.fromTo('.infoButton', {opacity: 0}, {opacity: 1, pointerEvents: 'auto', duration: 3, delay: 1});
+            gsap
+                .fromTo(
+                    '.infoButton',
+                    {opacity: 0},
+                    {opacity: 1, pointerEvents: 'auto', duration: 3, delay: 1});
           }, 0.1);
         }}>
           <Icon width={12} height={12} as={AiOutlineClose} color={'whiteAlpha.500'}/>

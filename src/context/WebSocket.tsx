@@ -16,7 +16,6 @@ type Tweet = {
 type EarthState={
   tweets: Tweet[],
   score: {
-    participants: number,
     positiveScore: number,
     negativeScore: number
   }

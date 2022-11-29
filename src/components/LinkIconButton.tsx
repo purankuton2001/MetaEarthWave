@@ -1,4 +1,4 @@
-import React, { useState, VFC } from 'react';
+import React, {useState, VFC} from 'react';
 
 type LinkIconButtonProps = {
 	/**
@@ -20,39 +20,39 @@ type LinkIconButtonProps = {
 	size?: [number, number]
 }
 
-export const LinkIconButton: VFC<LinkIconButtonProps> = props => {
-	const { imagePath, linkPath, position = 'bottom-right', size = [50, 50] } = props
-	const [hover, setHover] = useState(false)
+export const LinkIconButton: VFC<LinkIconButtonProps> = (props) => {
+  const {imagePath, linkPath, position = 'bottom-right', size = [50, 50]} = props;
+  const [hover, setHover] = useState(false);
 
-	const publicImagePath = process.env.PUBLIC_URL + imagePath
+  const publicImagePath = process.env.PUBLIC_URL + imagePath;
 
-	let positionStyle
-	switch (position) {
-		case 'top-left':
-			positionStyle = styles.topLeft
-			break
-		case 'top-right':
-			positionStyle = styles.topRight
-			break
-		case 'bottom-left':
-			positionStyle = styles.bottomLeft
-			break
-		default:
-			positionStyle = styles.bottomRight
-	}
+  let positionStyle;
+  switch (position) {
+    case 'top-left':
+      positionStyle = styles.topLeft;
+      break;
+    case 'top-right':
+      positionStyle = styles.topRight;
+      break;
+    case 'bottom-left':
+      positionStyle = styles.bottomLeft;
+      break;
+    default:
+      positionStyle = styles.bottomRight;
+  }
 
-	return (
-		<a
-			style={positionStyle}
-			href={linkPath}
-			target="_blank"
-			rel="noreferrer noopener"
-			onMouseEnter={() => setHover(true)}
-			onMouseLeave={() => setHover(false)}>
-			<img style={hover ? hoverStyles.img : styles.img} src={publicImagePath} alt="" width={size[0]} height={size[1]} />
-		</a>
-	)
-}
+  return (
+    <a
+      style={positionStyle}
+      href={linkPath}
+      target="_blank"
+      rel="noreferrer noopener"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
+      <img style={hover ? hoverStyles.img : styles.img} src={publicImagePath} alt="" width={size[0]} height={size[1]} />
+    </a>
+  );
+};
 
 // ========================================================
 // styles
@@ -60,45 +60,45 @@ export const LinkIconButton: VFC<LinkIconButtonProps> = props => {
 type Styles = { [key in string]: React.CSSProperties }
 
 const temp: Styles = {
-	container: {
-		position: 'absolute',
-		fontSize: '0'
-	}
-}
+  container: {
+    position: 'absolute',
+    fontSize: '0',
+  },
+};
 
 const styles: Styles = {
-	topLeft: {
-		...temp.container,
-		top: '10px',
-		left: '10px'
-	},
-	topRight: {
-		...temp.container,
-		top: '10px',
-		right: '10px'
-	},
-	bottomLeft: {
-		...temp.container,
-		bottom: '10px',
-		left: '10px'
-	},
-	bottomRight: {
-		...temp.container,
-		bottom: '10px',
-		right: '10px'
-	},
-	img: {
-		objectFit: 'cover',
-		opacity: '0.5',
-		transform: 'rotate(0deg)',
-		transition: 'all 0.3s'
-	}
-}
+  topLeft: {
+    ...temp.container,
+    top: '10px',
+    left: '10px',
+  },
+  topRight: {
+    ...temp.container,
+    top: '10px',
+    right: '10px',
+  },
+  bottomLeft: {
+    ...temp.container,
+    bottom: '10px',
+    left: '10px',
+  },
+  bottomRight: {
+    ...temp.container,
+    bottom: '10px',
+    right: '10px',
+  },
+  img: {
+    objectFit: 'cover',
+    opacity: '0.5',
+    transform: 'rotate(0deg)',
+    transition: 'all 0.3s',
+  },
+};
 
 const hoverStyles: Styles = {
-	img: {
-		...styles.img,
-		opacity: '1',
-		transform: 'rotate(360deg)'
-	}
-}
+  img: {
+    ...styles.img,
+    opacity: '1',
+    transform: 'rotate(360deg)',
+  },
+};

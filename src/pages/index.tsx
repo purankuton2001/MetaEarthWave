@@ -10,10 +10,14 @@ import {TweetPannel} from '../components/TweetPannel';
 // @ts-ignore
 import {Howl} from 'howler';
 import {useWindowSize} from '../hooks/useWindowSize';
+import {useLanguage} from '../hooks/useLanguage';
+import {screenOrientation} from '../utils/translateText';
 
 export type ModalState = null | string;
 
 const App: NextPage = () => {
+  const [playing, setPlaying] = useState<boolean>(false);
+  const language = useLanguage();
   const router = useRouter();
   const audio = useRef(new Howl({
     src: '/assets/frozen.wav',
@@ -29,6 +33,32 @@ const App: NextPage = () => {
   }, []);
   const {tweetBox} = router.query;
   const [modalState] = useState<ModalState>(null);
+  if (!playing) {
+    return <div style={{width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      flexDirection: 'column',
+      justifyContent: 'center'}}>
+      <div
+        onClick={() => {
+          setPlaying(true);
+          audio.current.play();
+        }}
+        style={{
+          cursor: 'pointer',
+          background: 'black',
+          width: '64px',
+          height: '64px',
+          borderRadius: '32px',
+          color: 'white',
+          paddingTop: '16px',
+          fontSize: '16px',
+          textAlign: 'center'}}>
+        START
+      </div>
+    </div>;
+  }
 
   return (
     <>
@@ -49,9 +79,20 @@ const App: NextPage = () => {
             router.push('/');
           }} />
       </div>}
-      {(height > width) && <div>
-        縦向き
-      </div>}
+      {(height > width) &&
+          <div style={{
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}>
+            <div style={{
+              textAlign: 'center',
+            }}>
+              {screenOrientation(language)}
+            </div>
+          </div>}
     </>
   );
 };
