@@ -31,6 +31,11 @@ const App: NextPage = () => {
   const {width, height} = useWindowSize();
   useLayoutEffect(() => {
     audio.current.load();
+    if (window) {
+      setTimeout(function() {
+        window.scrollTo(0, 1);
+      }, 1);
+    }
   }, []);
   useLayoutEffect(() => {
     if (playing) scrollBottom.current?.scrollIntoView();
