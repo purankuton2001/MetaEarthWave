@@ -20,15 +20,15 @@ export const PointPannel: VFC = () => {
     <div className={'pointPannel'}>
       <PointPannelBackground/>
       <div className={'negativeScoreGage'}
-        style={{width: `${(earthState.score.negativeScore/
+        style={{width: `${(Math.abs(earthState.score.negativeScore)/
                 (earthState.score.positiveScore +
-                   earthState.score.negativeScore))*328}px`}} />
+                   Math.abs(earthState.score.negativeScore)))*343}px`}} />
       <div className={'positiveScoreGage'}
         style={{width: `${(earthState.score.positiveScore/
                 (earthState.score.positiveScore +
-                   earthState.score.negativeScore))*328}px`}} />
+                   Math.abs(earthState.score.negativeScore)))*343}px`}} />
       <div className={'negativeScoreGageText'}>
-        {Math.round(earthState.score.negativeScore * 10)}
+        {Math.round(Math.abs(earthState.score.negativeScore) * 10)}
       </div>
       <div className={'positiveScoreGageText'}>
         {Math.round(earthState.score.positiveScore * 10)}
@@ -38,11 +38,11 @@ export const PointPannel: VFC = () => {
       <TotalScore gradientColor={rgb2hex(mix(hex2rgb('#00E0FF'),
           hex2rgb('#FF00E5'),
           earthState.score.positiveScore/(earthState.score.positiveScore +
-          earthState.score.negativeScore)))} />
+          Math.abs(earthState.score.negativeScore))))} />
       <div className={'totalScoreNumber'}>
         {Math.round(
             (earthState.score.positiveScore -
-                earthState.score.negativeScore) * 10)}
+                Math.abs(earthState.score.negativeScore)) * 10)}
       </div>
     </div>
   );

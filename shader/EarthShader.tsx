@@ -17,17 +17,13 @@ export const EarthShader = () => {
   useEffect(() => {
     const now = new Date();
     const limitTime = now.setMinutes(now.getMinutes() - 1);
+
     earthState?.tweets.forEach(({score, loc, time}) => {
       if (Date.parse(time) >= limitTime) {
-        addWave(loc[1], loc[0], score);
+        addWave(loc[0], loc[1], score);
       }
     });
   }, [earthState]);
-  // const uniforms = useControls('Noise', {
-  //   displaceForce: {value: 0.1, min: 0, max: 1, step: 0.01},
-  //   period: {value: 9, min: 0, max: 10, step: 0.01},
-  //   timeSpeed: {value: 4, min: 0, max: 10, step: 0.01},
-  // });
   const {width, height} = useWindowSize();
   if (shaderRef.current) {
   shaderRef.current!.uniforms.iResolution.value = new Vector2(width, height);
