@@ -12,7 +12,6 @@ import {hex2rgb, mix, rgb2hex} from '../utils';
 
 export const PointPannel: VFC = () => {
   const earthState = useWebSocket();
-
   if (!earthState) {
     return <div />;
   }
@@ -37,8 +36,9 @@ export const PointPannel: VFC = () => {
       <NegativeIcon className={'negativeIcon'} />
       <TotalScore gradientColor={rgb2hex(mix(hex2rgb('#00E0FF'),
           hex2rgb('#FF00E5'),
-          earthState.score.positiveScore/(earthState.score.positiveScore +
-          Math.abs(earthState.score.negativeScore))))} />
+          earthState.score.positiveScore/((earthState.score.positiveScore +
+          Math.abs(earthState.score.negativeScore))),
+      ))} />
       <div className={'totalScoreNumber'}>
         {Math.round(
             (earthState.score.positiveScore -

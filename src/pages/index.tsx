@@ -12,6 +12,9 @@ import {Howl} from 'howler';
 import {useWindowSize} from '../hooks/useWindowSize';
 import {useLanguage} from '../hooks/useLanguage';
 import {screenOrientation} from '../utils/translateText';
+import {TwitterLoginButton} from '../components/TwitterLoginButton';
+import {auto} from '@popperjs/core';
+import {position} from '@chakra-ui/react';
 
 export type ModalState = null | string;
 
@@ -19,6 +22,7 @@ const App: NextPage = () => {
   const [playing, setPlaying] = useState<boolean>(false);
   const language = useLanguage();
   const router = useRouter();
+  const scrollBottom = useRef<HTMLDivElement>(null!);
   const audio = useRef(new Howl({
     src: '/assets/frozen.wav',
     html5: true,
@@ -26,11 +30,11 @@ const App: NextPage = () => {
   }));
   const {width, height} = useWindowSize();
   useLayoutEffect(() => {
-    audio.current.on('load', () => {
-      console.log(audio.current.playing());
-    });
     audio.current.load();
   }, []);
+  useLayoutEffect(() => {
+    if (playing) scrollBottom.current?.scrollIntoView();
+  }, [playing]);
   const {tweetBox} = router.query;
   const [modalState] = useState<ModalState>(null);
   if (!playing && tweetBox === undefined) {
@@ -72,6 +76,13 @@ const App: NextPage = () => {
         <MessagePannel modalState={modalState}/>
         <ModalPannel />
         <TCanvas />
+        <TwitterLoginButton
+          style={{position: 'absolute',
+            bottom: '10%',
+            margin: 'auto',
+            left: 0,
+            right: 0,
+            width: '10%'}} />
         <TweetPannel
           isOpen={Boolean(tweetBox)}
           onOpen={() => {}}
@@ -82,6 +93,10 @@ const App: NextPage = () => {
             }
             router.push('/');
           }} />
+        <div
+          style={{position: 'absolute', bottom: 0, height: 0, width: '100%'}}
+          ref={scrollBottom}
+        />
       </div>}
       {(height > width) &&
           <div style={{

@@ -15,6 +15,7 @@ import {
 import {useSession} from 'next-auth/react';
 import {useRouter} from 'next/router';
 import {useGeoPosition} from '../hooks/useGeoPosition';
+import {TwitterLoginButton} from './TwitterLoginButton';
 
 type TweetPannelProps = {
   isOpen: boolean;
@@ -37,11 +38,6 @@ export const TweetPannel: VFC<TweetPannelProps> =
       const {data} = session;
       const earthState = useWebSocket();
       const loc = useGeoPosition();
-      useEffect(() => {
-        if (!data) {
-          router.push('/');
-        }
-      }, [data]);
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
           tweetText,
@@ -66,12 +62,13 @@ export const TweetPannel: VFC<TweetPannelProps> =
                 }} value={tweetText} minHeight={'144px'} />
               </ModalBody>
               <ModalFooter>
-                <Button colorScheme='blue' mr={3} onClick={() => {
+                {data && <Button colorScheme='blue' mr={3} onClick={() => {
                   sendTweet(tweetText);
                   onClose();
                 }}>
                    Tweet
-                </Button>
+                </Button>}
+                {!data && <TwitterLoginButton />}
               </ModalFooter>
             </ModalContent>
           </Modal>

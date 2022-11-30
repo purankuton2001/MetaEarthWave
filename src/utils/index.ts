@@ -10,15 +10,22 @@ export function hex2rgb( hex: string ) {
     return parseInt( str, 16 );
   } );
 }
-export function rgb2hex( rgb: number[] ) {
-  return '#' + rgb.map( function( value ) {
-    return ( '0' + value.toString( 16 ) ).slice( -2 );
-  } ).join( '' );
+
+function colorToHex(color: number) {
+  const intColor = Math.floor(color);
+  const hexadecimal = intColor.toString(16);
+  return hexadecimal.length == 1 ? '0' + hexadecimal : hexadecimal;
 }
+
+export function rgb2hex(rgb: number[]) {
+  return '#' + colorToHex(rgb[0]) + colorToHex(rgb[1]) + colorToHex(rgb[2]);
+}
+
 export function mix(a: number[], b:number[], x: number) {
   const result : number[] = [];
   a.forEach((value, index) => {
     result.push(value * x + b[index] * (1-x));
   });
+  console.log(result);
   return result;
 }

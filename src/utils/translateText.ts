@@ -33,6 +33,15 @@ export function joinTitle(lang: string) {
   }
 };
 
+export function tweetButton(lang: string) {
+  switch (lang) {
+    case 'ja':
+      return '波を生み出す';
+    default:
+      return 'Creating Waves';
+  }
+};
+
 export function screenOrientation(lang: string) {
   switch (lang) {
     case 'ja':

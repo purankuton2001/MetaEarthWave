@@ -16,6 +16,7 @@ import {
   joinMediumText,
   joinTitle,
 } from '../utils/translateText';
+import {TwitterLoginButton} from './TwitterLoginButton';
 
 
 export const ModalPannel: VFC = () => {
@@ -23,16 +24,6 @@ export const ModalPannel: VFC = () => {
   const language = useLanguage();
   const parmeter = {
     scale: 0.15,
-  };
-
-
-  function tweetButton(lang: string) {
-    switch (lang) {
-      case 'ja':
-        return '波を生み出す';
-      default:
-        return 'Creating Waves';
-    }
   };
 
   useEffect(() => {
@@ -77,10 +68,7 @@ export const ModalPannel: VFC = () => {
         <div className={'modalEmotion magenta'}>
           {joinEmotionMagenta(language)}
         </div>
-        <div onClick={() => signIn('twitter', {callbackUrl: '/?tweetBox=true'})}
-          className={'tweetButton'}>
-          {tweetButton(language)}
-        </div>
+        <TwitterLoginButton style={{bottom: 16, position: 'absolute'}} />
       </div>}
       {!modalVisible && <div
         onClick={() => {
