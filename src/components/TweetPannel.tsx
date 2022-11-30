@@ -38,10 +38,10 @@ export const TweetPannel: VFC<TweetPannelProps> =
       const earthState = useWebSocket();
       const loc = useGeoPosition();
       useEffect(() => {
-        if (!session) {
+        if (!data) {
           router.push('/');
         }
-      }, [session]);
+      }, [data]);
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
           tweetText,
@@ -66,7 +66,6 @@ export const TweetPannel: VFC<TweetPannelProps> =
                 }} value={tweetText} minHeight={'144px'} />
               </ModalBody>
               <ModalFooter>
-                <Button variant='ghost'>Cancel</Button>
                 <Button colorScheme='blue' mr={3} onClick={() => {
                   sendTweet(tweetText);
                   onClose();

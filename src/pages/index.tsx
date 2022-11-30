@@ -33,7 +33,7 @@ const App: NextPage = () => {
   }, []);
   const {tweetBox} = router.query;
   const [modalState] = useState<ModalState>(null);
-  if (!playing) {
+  if (!playing && tweetBox === undefined) {
     return <div style={{width: '100vw',
       height: '100vh',
       display: 'flex',
@@ -76,6 +76,10 @@ const App: NextPage = () => {
           isOpen={Boolean(tweetBox)}
           onOpen={() => {}}
           onClose={() => {
+            if (!playing) {
+              setPlaying(true);
+              audio.current.play();
+            }
             router.push('/');
           }} />
       </div>}
