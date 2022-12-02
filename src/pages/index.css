@@ -24,7 +24,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 40%;
-	height: 80%;
+	height: 60%;
 	position: absolute;
 	align-items: center;
 	z-index: 30;
@@ -163,6 +163,7 @@
 }
 .authorCardImage {
 	opacity: inherit;
+	overflow: hidden;
 	border-radius: 100px;
 }
 .authorCardName {
@@ -181,7 +182,7 @@
 	justify-content: space-around;
 	width: 80%;
 }
-.snsIconList{
+.snsIcon{
 	cursor: pointer;
 }
 .authorCardContainer {
@@ -191,7 +192,7 @@
 	flex-direction: column;
 }
 .authorList{
-	padding: 48px 24px;
+	padding: 24px;
 	width: 100%;
 	display: flex;
 	flex-direction: row;
@@ -199,8 +200,8 @@
 }
 .authorTitle{
 	color: white;
-	font-size: 44px;
-	margin-top: 28px;
+	font-size: 40px;
+	margin-top: 24px;
 	text-align: center;
 }
 .modalText{
@@ -411,6 +412,18 @@ code {
 		transform: scale(0.8) !important;
 		right: 88px;
 		bottom: 24px;
+	}
+	.authorTitle{
+		font-size: 28px;
+		margin-top: 12px;
+	}
+	.authorCardName {
+		font-size: 14px;
+		font-weight: 400;
+	}
+	.authorCardProfession {
+		font-size: 9px;
+		margin-bottom: 16px;
 	}
 }
 

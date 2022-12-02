@@ -63,7 +63,7 @@ export const AuthorPannel: VFC = () => {
           gsap.set('.superviseButton', {pointerEvents: 'none'});
           gsap.to('.supervisedButton', {opacity: 0, duration: 0.5});
           gsap.to('.authorBackground', {opacity: 0.5, duration: 0.5});
-          gsap.to('.authorBackground', {width: '40%', height: '80%', duration: 0.5, delay: 0.5});
+          gsap.to('.authorBackground', {width: '40%', height: '60%', duration: 0.5, delay: 0.5});
           setTimeout(() => {
             gsap.to('.authorPanel', {pointerEvents: 'auto', opacity: 1, duration: 3.0});
           }, 1000);
