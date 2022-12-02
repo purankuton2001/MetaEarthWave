@@ -9,7 +9,7 @@ import {useWebSocket} from '../src/context/WebSocket';
 
 
 export const EarthShader = () => {
-  const earthTexture = useTexture('earth.jpg');
+  const earthTexture = useTexture('earth_light.jpg');
   let waveValue = 0;
   const earthState = useWebSocket();
   const shaderRef = useRef<ShaderMaterial>(null!);

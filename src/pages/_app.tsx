@@ -9,6 +9,11 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
     <SessionProvider session={session}>
       <Head>
         <title>MetaEarthWave</title>
+
+        <meta
+          name="viewport"
+          content="initial-scale=1.0, width=device-width" />
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:creator" content="@plankton_2022" />
         <meta name="twitter:title" content="MetaEarthWave" />
@@ -29,9 +34,6 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
         <meta
           property="og:image"
           content="https://www.meta-earth-wave.art/assets/images/MetaEarthWave.png" />
-        <meta
-          name="viewport"
-          content="initial-scale=1.0, width=device-width" />
       </Head>
       <ChakraProvider>
         <Component {...pageProps} />
