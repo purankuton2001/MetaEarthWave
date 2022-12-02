@@ -3,6 +3,26 @@
 	opacity: 0;
 	display: flex;
 	flex-direction: column;
+	width: 50%;
+	height: 80%;
+	position: absolute;
+	align-items: center;
+	z-index: 30;
+	margin: auto;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	padding: 0px 16px;
+	border-radius: 48px;
+	backdrop-filter: blur(15px);
+}
+
+.authorPanel{
+	pointer-events: none;
+	opacity: 0;
+	display: flex;
+	flex-direction: column;
 	width: 40%;
 	height: 80%;
 	position: absolute;
@@ -22,6 +42,14 @@
 	position: absolute;
 	right: 24px;
 	bottom: 16px;
+	cursor: pointer;
+}
+
+.supervisedButton {
+	z-index: 30;
+	position: absolute;
+	right: 204px;
+	bottom: 28px;
 	cursor: pointer;
 }
 .messageItem {
@@ -58,13 +86,6 @@
 	flex-direction: row;
 	margin-bottom: 4px;
 }
-/*.scale:hover{*/
-/*	transform: scale(0.17);*/
-/*}*/
-/*.scale:hover +.fill{*/
-/*	fill: black;*/
-/*	fill-opacity: 0.5;*/
-/*}*/
 
 .closeButton {
 	width: 88px;
@@ -85,6 +106,24 @@
 	height: 50px;
 	right: 50px;
 	bottom: 42px;
+	background: black;
+	z-index: 30;
+	backdrop-filter: blur(30px);
+}
+
+.authorBackground {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	margin: auto;
+	pointer-events: none;
+	border-radius: 48px;
+	opacity: 0;
+	position: absolute;
+	width: 50px;
+	height: 50px;
 	background: black;
 	z-index: 30;
 	backdrop-filter: blur(30px);
@@ -119,13 +158,54 @@
 .modalTitle{
 	color: white;
 	font-size: 32px;
-	margin: 16px 0px;
+	margin: 28px 0px;
 	text-align: center;
-	margin-top: 48px;
+}
+.authorCardImage {
+	opacity: inherit;
+	border-radius: 100px;
+}
+.authorCardName {
+	font-size: 28px;
+	color: white;
+	font-weight: 400;
+}
+.authorCardProfession {
+	font-size: 14px;
+	color: whitesmoke;
+	margin-bottom: 32px;
+}
+.snsIconList {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	width: 80%;
+}
+.snsIconList{
+	cursor: pointer;
+}
+.authorCardContainer {
+	width: 40%;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+}
+.authorList{
+	padding: 48px 24px;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.authorTitle{
+	color: white;
+	font-size: 44px;
+	margin-top: 28px;
+	text-align: center;
 }
 .modalText{
 	color: white;
-	font-size: 13px;
+	font-size: 16px;
 	padding: 0px 24px;
 	text-align: center;
 	font-weight: normal;
@@ -136,7 +216,7 @@
 	padding: 0px 24px;
 	text-align: center;
 	font-weight: normal;
-	margin-bottom: 24px;
+	margin-bottom: 36px;
 }
 .modalMediamText{
 	color: white;
@@ -262,6 +342,7 @@
 	margin: auto;
 	background: deepskyblue;
 	cursor: pointer;
+	font-size: 24px;
 }
 
 body {
@@ -281,3 +362,55 @@ code {
 * {
 	box-sizing: border-box;
 }
+
+@media (max-width: 900px){
+	.pointPannel{
+		margin: 12px auto;
+		transform-origin: center;
+		transform: scale(0.7);
+	}
+	.modalTitle{
+		font-size: 20px;
+		margin: 12px auto;
+	}
+	.modalText, .modalText2{
+		font-size: 8px;
+		margin-bottom: 0px;
+	}
+	.modalMediamText {
+		font-size: 12px;
+	}
+	.modalEmotion{
+		font-size: 9px;
+		margin: 4px auto;
+	}
+	.tweetButton{
+		transform-origin: center;
+		transform: scale(0.6);
+		font-size: 12px !important;
+	}
+	.closeButton{
+		top: 0px;
+		transform-origin: center;
+		transform: scale(0.6);
+	}
+	.infoButton{
+		transform-origin: center;
+		transform: scale(0.8);
+		right: 8px;
+		bottom: 8px;
+	}
+	.supervisedButton{
+		transform-origin: center;
+		transform: scale(0.8) !important;
+		right: 144px;
+		bottom: 20px;
+	}
+	.messageButton{
+		transform-origin: center;
+		transform: scale(0.8) !important;
+		right: 88px;
+		bottom: 24px;
+	}
+}
+

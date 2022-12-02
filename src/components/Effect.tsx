@@ -9,15 +9,15 @@ import {RipplePass} from './postprocessing/RipplePass';
 extend({EffectComposer, ShaderPass, GlitchPass, RenderPass, BloomPass});
 
 export const Effect: VFC = () => {
-  const distDatas = useControls('Distortion', {
-    enabled: true,
-    progress: {value: 0, min: 0, max: 1, step: 0.01},
-    scale: {value: 1, min: 0, max: 5, step: 0.01},
-  });
-
-  const rippleDatas = useControls('Ripple', {
-    enabled: true,
-  });
+  // const distDatas = useControls('Distortion', {
+  //   enabled: true,
+  //   progress: {value: 0, min: 0, max: 1, step: 0.01},
+  //   scale: {value: 1, min: 0, max: 5, step: 0.01},
+  // });
+  //
+  // const rippleDatas = useControls('Ripple', {
+  //   enabled: true,
+  // });
 
   const composerRef = useRef<EffectComposer>(null);
   const {gl, scene, camera, size} = useThree();
@@ -33,8 +33,8 @@ export const Effect: VFC = () => {
   return (
     <effectComposer ref={composerRef} args={[gl]}>
       <renderPass attachArray="passes" args={[scene, camera]} />
-      <DistortionPass {...distDatas} />
-      <RipplePass {...rippleDatas} />
+      <DistortionPass />
+      <RipplePass />
     </effectComposer>
   );
 };

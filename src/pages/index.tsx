@@ -13,8 +13,7 @@ import {useWindowSize} from '../hooks/useWindowSize';
 import {useLanguage} from '../hooks/useLanguage';
 import {screenOrientation} from '../utils/translateText';
 import {TwitterLoginButton} from '../components/TwitterLoginButton';
-import {auto} from '@popperjs/core';
-import {position} from '@chakra-ui/react';
+import {AuthorPannel} from '../components/AuthorPannel';
 
 export type ModalState = null | string;
 
@@ -80,6 +79,7 @@ const App: NextPage = () => {
         <PointPannel />
         <MessagePannel modalState={modalState}/>
         <ModalPannel />
+        <AuthorPannel />
         <TCanvas />
         <TwitterLoginButton
           style={{position: 'absolute',
@@ -87,7 +87,7 @@ const App: NextPage = () => {
             margin: 'auto',
             left: 0,
             right: 0,
-            width: '10%'}} />
+            width: '20%'}} />
         <TweetPannel
           isOpen={Boolean(tweetBox)}
           onOpen={() => {}}

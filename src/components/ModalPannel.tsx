@@ -17,6 +17,7 @@ import {
   joinTitle,
 } from '../utils/translateText';
 import {TwitterLoginButton} from './TwitterLoginButton';
+import {useWindowSize} from '../hooks/useWindowSize';
 
 
 export const ModalPannel: VFC = () => {
@@ -68,7 +69,7 @@ export const ModalPannel: VFC = () => {
         <div className={'modalEmotion magenta'}>
           {joinEmotionMagenta(language)}
         </div>
-        <TwitterLoginButton style={{bottom: 16, position: 'absolute'}} />
+        <TwitterLoginButton style={{bottom: '3%', position: 'absolute'}} />
       </div>}
       {!modalVisible && <div
         onClick={() => {
@@ -82,7 +83,7 @@ export const ModalPannel: VFC = () => {
           gsap.set('.infoButton', {pointerEvents: 'none'});
           gsap.to('.infoButton', {opacity: 0, duration: 0.5});
           gsap.to('.modalBackground', {opacity: 0.5, duration: 0.5});
-          gsap.to('.modalBackground', {x: '-50%', y: '-50%', left: '50%', top: '50%', width: '30%', height: '60%', duration: 0.5, delay: 0.5});
+          gsap.to('.modalBackground', {x: '-50%', y: '-50%', left: '50%', top: '50%', width: '37.5%', height: '60%', duration: 0.5, delay: 0.5});
           setTimeout(() => {
             gsap.to('.modalPanel', {pointerEvents: 'auto', opacity: 1, duration: 3.0});
           }, 1000);
