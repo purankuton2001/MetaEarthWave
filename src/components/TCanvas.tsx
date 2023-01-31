@@ -5,7 +5,7 @@ import {Effect} from './Effect';
 import Earth from './Earth';
 import {Euler, Vector3} from 'three';
 import {NoiseShader} from '../../shader/NoiseShader';
-import {PointPannel} from './PointPannel';
+import {ParticleSystem} from './ParticleSystem';
 
 
 export const TCanvas: VFC = () => {
@@ -21,9 +21,9 @@ export const TCanvas: VFC = () => {
         far: 2000,
       }}>
       <OrbitControls attach="orbitControls" enableZoom={false} enablePan={false}/>
-      {/* <Stats />*/}
+      <Stats />
       <Suspense fallback={null}>
-        <ambientLight />
+        <ambientLight intensity={1} />
         <Earth position={new Vector3(0, 0, 0)}/>
         <mesh
           position={new Vector3(0, 0, 0)}

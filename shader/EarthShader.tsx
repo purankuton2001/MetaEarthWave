@@ -6,6 +6,7 @@ import {ShaderMaterial, Uniform, Vector2, Vector3, Vector4} from 'three';
 import {useWindowSize} from '../src/hooks/useWindowSize';
 import {useTexture} from '@react-three/drei';
 import {useWebSocket} from '../src/context/WebSocket';
+import {translateGeoCoords} from '../src/utils';
 
 
 export const EarthShader = () => {
@@ -13,43 +14,35 @@ export const EarthShader = () => {
   let waveValue = 0;
   const earthState = useWebSocket();
   const shaderRef = useRef<ShaderMaterial>(null!);
+  const {width, height} = useWindowSize();
+
 
   useEffect(() => {
     const now = new Date();
-    const limitTime = now.setMinutes(now.getMinutes() - 1);
+    const limitTime = now.setMonth(now.getMonth() - 1);　//　制限時間
 
     earthState?.tweets.forEach(({score, loc, time}) => {
-      if (Date.parse(time) >= limitTime) {
+      if (Date.parse(time) >= limitTime && loc) {
         addWave(loc[0], loc[1], score);
       }
     });
-  }, [earthState]);
-  const {width, height} = useWindowSize();
+  }, [earthState]); // 一分前までのツイートを抽出して波を発生させる関数を呼ぶ
   if (shaderRef.current) {
   shaderRef.current!.uniforms.iResolution.value = new Vector2(width, height);
   }
   useFrame(() => {
      shaderRef.current!.uniforms.iTime.value += 0.01;
   });
-  const translateGeoCoords = (latitude: number, longitude: number, radius: number, score: number) => {
-    // 仰角
-    const phi = latitude * Math.PI / 180;
-    // 方位角
-    const theta = (longitude - 180) * Math.PI / 180;
 
-    const x = -1 * radius * Math.cos(phi) * Math.cos(theta);
-    const y = radius * Math.sin(phi);
-    const z = radius * Math.cos(phi) * Math.sin(theta);
-
-    return new Vector4(score, x, y, z);
-  };
 
   const addWave = (latitude: number, longitude: number, score: number) => {
     if (shaderRef.current && waveValue <= 20) {
       const newWave = shaderRef.current.uniforms.waves.value;
-      newWave[waveValue] = translateGeoCoords(latitude, longitude, 1, score);
+      const wavePostion = translateGeoCoords(latitude, longitude, 1);
+      newWave[waveValue] = new Vector4(wavePostion.x, wavePostion.y, wavePostion.z, score);
       shaderRef.current.uniforms.waves.value = newWave;
-      console.log(newWave);
+
+      waveValue++;
       setTimeout(() => {
         const newWave = shaderRef.current.uniforms.waves.value;
         const waveIndex = newWave.findIndex((element: any) => {
@@ -58,8 +51,7 @@ export const EarthShader = () => {
         newWave[waveIndex] = new Vector3(-2);
         shaderRef.current.uniforms.waves.value = newWave;
         waveValue--;
-      }, 60000);
-      waveValue++;
+      }, 60000);// 規定時間後に波を消す
     }
   };
 
@@ -77,26 +69,26 @@ export const EarthShader = () => {
           displaceForce: new Uniform(0.3),
           waves:
             new Uniform([
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
-              new Vector4(-2, 0, 0, 0),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
+              new Vector4(0, 0, 0, -2),
             ]),
         }}
     />, [],

@@ -1,3 +1,5 @@
+import {Vector3, Vector4} from 'three';
+
 export function hex2rgb( hex: string ) {
   if ( hex.slice(0, 1) == '#' ) hex = hex.slice(1);
   if ( hex.length == 3 ) {
@@ -26,6 +28,19 @@ export function mix(a: number[], b:number[], x: number) {
   a.forEach((value, index) => {
     result.push(value * x + b[index] * (1-x));
   });
-  console.log(result);
   return result;
 }
+
+export const translateGeoCoords =
+    (latitude: number, longitude: number, radius: number) => {
+      // 仰角
+      const phi = latitude * Math.PI / 180;
+      // 方位角
+      const theta = (longitude - 180) * Math.PI / 180;
+
+      const x = -1 * radius * Math.cos(phi) * Math.cos(theta);
+      const y = radius * Math.sin(phi);
+      const z = radius * Math.cos(phi) * Math.sin(theta);
+
+      return new Vector3(x, y, z);
+    };

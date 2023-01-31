@@ -1,4 +1,4 @@
-import React, {useRef, VFC} from 'react';
+import React, {useEffect, useRef, useState, VFC} from 'react';
 import PointPannelBackground
   from '../../public/assets/images/PointPannelBackground.svg';
 import NegativeIcon
@@ -12,6 +12,31 @@ import {hex2rgb, mix, rgb2hex} from '../utils';
 
 export const PointPannel: VFC = () => {
   const earthState = useWebSocket();
+  const changePositiveScore = (apiScore: number, displayScore: number) => {
+    if (apiScore > displayScore) {
+      setPositiveScore(displayScore + 0.1);
+      setTimeout(changePositiveScore, 0.1, apiScore, displayScore + 0.1);
+    }
+  };
+  const changeNegativeScore = (apiScore: number, displayScore: number) => {
+    if (apiScore > displayScore) {
+      setNegativeScore(displayScore + 0.1);
+      setTimeout(changeNegativeScore, 0.1, apiScore, displayScore + 0.1);
+    }
+  };
+  useEffect(() => {
+    if (earthState) {
+      changePositiveScore(earthState.score.positiveScore, positiveScore);
+    }
+  }, [earthState?.score.positiveScore]);
+  useEffect(() => {
+    if (earthState) {
+      changeNegativeScore(Math.abs(earthState.score.negativeScore), negativeScore);
+    }
+  }, [earthState?.score.positiveScore]);
+  const [positiveScore, setPositiveScore] = useState<number>(0);
+  const [negativeScore, setNegativeScore] = useState<number>(0);
+  console.log(negativeScore);
   if (!earthState) {
     return <div />;
   }
@@ -19,30 +44,28 @@ export const PointPannel: VFC = () => {
     <div className={'pointPannel'}>
       <PointPannelBackground/>
       <div className={'negativeScoreGage'}
-        style={{width: `${(Math.abs(earthState.score.negativeScore)/
-                (earthState.score.positiveScore +
-                   Math.abs(earthState.score.negativeScore)))*343}px`}} />
+        style={{width: `${(Math.abs(negativeScore)/
+                (positiveScore + negativeScore))*343}px`}} />
       <div className={'positiveScoreGage'}
-        style={{width: `${(earthState.score.positiveScore/
-                (earthState.score.positiveScore +
-                   Math.abs(earthState.score.negativeScore)))*343}px`}} />
+        style={{width: `${(positiveScore/
+                (positiveScore + negativeScore))*343}px`}} />
       <div className={'negativeScoreGageText'}>
-        {Math.round(Math.abs(earthState.score.negativeScore) * 10)}
+        {Math.round(negativeScore * 10)}
       </div>
       <div className={'positiveScoreGageText'}>
-        {Math.round(earthState.score.positiveScore * 10)}
+        {Math.round(positiveScore * 10)}
       </div>
       <PositiveIcon className={'positiveIcon'} />
       <NegativeIcon className={'negativeIcon'} />
       <TotalScore gradientColor={rgb2hex(mix(hex2rgb('#00E0FF'),
           hex2rgb('#FF00E5'),
-          earthState.score.positiveScore/((earthState.score.positiveScore +
-          Math.abs(earthState.score.negativeScore))),
+          positiveScore/((positiveScore +
+          negativeScore)),
       ))} />
       <div className={'totalScoreNumber'}>
         {Math.round(
-            (earthState.score.positiveScore -
-                Math.abs(earthState.score.negativeScore)) * 10)}
+            (positiveScore -
+                negativeScore) * 10)}
       </div>
     </div>
   );

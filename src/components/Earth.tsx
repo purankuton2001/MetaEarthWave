@@ -1,4 +1,3 @@
-import {OrbitControls, useTexture} from '@react-three/drei';
 import {EarthProps} from '../../types/util';
 import {useFrame} from '@react-three/fiber';
 import {useRef} from 'react';
@@ -9,7 +8,10 @@ export default function Earth({position}: EarthProps) {
   const ref = useRef<Mesh>();
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.y += 0.001;
+      const time = new Date(Date.now());
+      const second = time.getSeconds() + time.getMilliseconds()/1000;
+      const earthRotation = 2 * Math.PI * second/60;
+      ref.current.rotation.y = earthRotation;
     }
   });
   return (

@@ -57,10 +57,10 @@ void main(){
     vec3 purpleColor = vec3(1,0, 0.933333);
     vec3 waterBlueColor = vec3(0.017496,0.972, 0.908366);
     vec3 color = vec3(mix(purpleColor, waterBlueColor, vec3(noise(vec3(baseUV*100./period+iTime/5.,iTime/5.)))));
-    for (int i=0 ; i<3; i++){
-        if(waves[i].r != -2.){
-            vec3 waveColor = mix(purpleColor, waterBlueColor,waves[i].r/2. + 0.5);
-            color += waveColor * Wave(abs(waves[i].r), waves[i].gba);
+    for (int i=0 ; i<20; i++){
+        if(waves[i].a != -2.){
+            vec3 waveColor = mix(purpleColor, waterBlueColor,waves[i].a/2. + 0.5);
+            color += waveColor * Wave(abs(waves[i].a), waves[i].rgb);
         }
     }
     gl_FragColor = vec4(texture+color*0.8, 1.0);

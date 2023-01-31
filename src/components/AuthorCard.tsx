@@ -16,7 +16,8 @@ export const AuthorCard: VFC<any> =
             src={image}
             width={width/4} height={height/4}
             objectFit={'contain'}/>
-          }      <div className={'authorCardName'}>
+          }
+          <div className={'authorCardName'}>
             {name}
           </div>
           <div className={'authorCardProfession'}>
