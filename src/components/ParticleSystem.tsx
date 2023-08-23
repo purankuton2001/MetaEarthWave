@@ -1,4 +1,4 @@
-import {useEffect, useLayoutEffect, useRef, useState, VFC} from 'react';
+import {useEffect, useRef} from 'react';
 import {useFrame, useThree} from '@react-three/fiber';
 import System, {
   Emitter,
@@ -9,20 +9,21 @@ import System, {
   Radius,
   Life,
   PointZone,
-  LineZone,
   Vector3D,
   Alpha,
   Scale,
   Color,
   Body,
   RadialVelocity,
-  MeshRenderer,
   SpriteRenderer,
-  BodySprite,
-  Debug,
-  Gravity,
+  // @ts-ignore
 } from 'three-nebula';
-import {AdditiveBlending, Euler, Sprite, SpriteMaterial, TextureLoader, Vector3, Vector4} from 'three';
+import {
+  AdditiveBlending,
+  Euler,
+  Sprite,
+  SpriteMaterial,
+  TextureLoader} from 'three';
 import * as THREE from 'three';
 import {useWebSocket} from '../context/WebSocket';
 import {translateGeoCoords} from '../utils';
@@ -32,7 +33,7 @@ export function ParticleSystem() {
   const earthState = useWebSocket();
   useEffect(() => {
     const now = new Date();
-    const limitTime = now.setMinutes(now.getMinutes() - 1);　//　制限時間
+    const limitTime = now.setMinutes(now.getMinutes() - 1);
     addWave(0, 0, 1);
 
     earthState?.tweets.forEach(({score, loc, time}) => {
@@ -50,7 +51,8 @@ export function ParticleSystem() {
 
   const zone = new PointZone(0, 0);
   function createSprite() {
-    const map = new TextureLoader().load('./assets/textures/particle_texture.png');
+    const map = new TextureLoader()
+        .load('./assets/textures/particle_texture.png');
     const material = new SpriteMaterial({
       map: map,
       color: 0x4cd3c2,
@@ -75,10 +77,20 @@ export function ParticleSystem() {
         .setBehaviours([new Alpha(1, 0), new Scale(0.5, 0.8),
           new Color('#FF00E5')])
         .emit();
+    system.current &&
     // @ts-ignore
-    system.current && system.current.addEmitter(emitters.current[emitters.current.length - 1]);
-    emitters.current[emitters.current.length - 1].rotation = new Euler(0, longitude * 2 * Math.PI/360, (latitude-90) * 2 * Math.PI/360);
-    setInterval(rotateEarth, 100, latitude, longitude, emitters.current[emitters.current.length-1]);
+    system.current.addEmitter(emitters.current[emitters.current.length - 1]);
+    emitters
+        .current[emitters.current.length - 1]
+        .rotation =
+        new Euler(0,
+            longitude * 2 * Math.PI/360,
+            (latitude-90) * 2 * Math.PI/360);
+    setInterval(rotateEarth,
+        100,
+        latitude,
+        longitude,
+        emitters.current[emitters.current.length-1]);
   };
 
   function rotateEarth(latitude: number, longitude: number, emitter: Emitter) {
@@ -96,7 +108,9 @@ export function ParticleSystem() {
       }
     }
 
-    const pos = translateGeoCoords(latitude, calculateLongitude(longitude + (second * 6)), 1.0);
+    const pos =
+        translateGeoCoords(latitude,
+            calculateLongitude(longitude + (second * 6)), 1.0);
     emitter.position = pos;
   }
 
@@ -118,7 +132,7 @@ export function ParticleSystem() {
 
 
   useFrame(({clock}) => {
-    const delta = clock.getDelta();
+    // @ts-ignore
     system.current.update();
     // tha.current += Math.PI / 150;
     //
