@@ -40,6 +40,7 @@ export const TweetPannel: VFC<TweetPannelProps> =
       const earthState = useWebSocket();
       const loc = useGeoPosition();
       const sendTweet = (tweetText: string) => {
+        console.log(data);
         const sendTweetData: SendTweetData = {
           tweetText,
           name: data?.user?.name as string,
