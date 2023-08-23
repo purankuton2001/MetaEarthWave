@@ -19,7 +19,7 @@ export const EarthShader = () => {
 
   useEffect(() => {
     const now = new Date();
-    const limitTime = now.setMonth(now.getMonth() - 1);　//　制限時間
+    const limitTime = now.setMonth(now.getMonth() - 1);
 
     earthState?.tweets.forEach(({score, loc, time}) => {
       if (Date.parse(time) >= limitTime && loc) {

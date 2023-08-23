@@ -23,6 +23,8 @@ type TweetPannelProps = {
   onClose: () => void;
 }
 type SendTweetData = {
+    name: string,
+    image: string,
     tweetText: string,
     accessToken: string,
     accessTokenSecret: string,
@@ -34,13 +36,14 @@ export const TweetPannel: VFC<TweetPannelProps> =
     ({isOpen, onOpen, onClose}) => {
       const [tweetText, setTweetText] = useState<string>(null!);
       const session = useSession();
-      const router = useRouter();
       const {data} = session;
       const earthState = useWebSocket();
       const loc = useGeoPosition();
       const sendTweet = (tweetText: string) => {
         const sendTweetData: SendTweetData = {
           tweetText,
+          name: data?.user?.name as string,
+          image: data?.user?.image as string,
           // @ts-ignore
           accessToken: data?.user?.token?.account.oauth_token,
           // @ts-ignore

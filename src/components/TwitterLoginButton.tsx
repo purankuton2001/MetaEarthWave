@@ -1,5 +1,4 @@
-import React, {useRef, VFC} from 'react';
-import {useWebSocket} from '../context/WebSocket';
+import React, {VFC} from 'react';
 import {signIn} from 'next-auth/react';
 import {useLanguage} from '../hooks/useLanguage';
 import {tweetButton} from '../utils/translateText';
