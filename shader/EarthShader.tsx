@@ -19,7 +19,7 @@ export const EarthShader = () => {
 
   useEffect(() => {
     const now = new Date();
-    const limitTime = now.setMonth(now.getMonth() - 1);
+    const limitTime = now.setMinutes(now.getMinutes() - 1);
 
     earthState?.tweets.forEach(({score, loc, time}) => {
       if (Date.parse(time) >= limitTime && loc) {
@@ -34,7 +34,7 @@ export const EarthShader = () => {
      shaderRef.current!.uniforms.iTime.value += 0.01;
   });
 
-
+  // 指定した場所にした大きさの波を一定時間発生させる
   const addWave = (latitude: number, longitude: number, score: number) => {
     if (shaderRef.current && waveValue <= 20) {
       const newWave = shaderRef.current.uniforms.waves.value;
@@ -43,6 +43,8 @@ export const EarthShader = () => {
       shaderRef.current.uniforms.waves.value = newWave;
 
       waveValue++;
+
+      // 規定時間後に波を消す
       setTimeout(() => {
         const newWave = shaderRef.current.uniforms.waves.value;
         const waveIndex = newWave.findIndex((element: any) => {
@@ -51,7 +53,7 @@ export const EarthShader = () => {
         newWave[waveIndex] = new Vector3(-2);
         shaderRef.current.uniforms.waves.value = newWave;
         waveValue--;
-      }, 60000);// 規定時間後に波を消す
+      }, 60000);
     }
   };
 

@@ -40,7 +40,6 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
                   width={32}
                   height={32}/>
                 <h2 className={'name'}>{tweet.account.name}</h2>
-                <div className={'screenName'}>@{tweet.account.screenName}</div>
               </div>
               <div className={'messageText'}>{tweet.text}</div>
             </div>);
