@@ -1,7 +1,7 @@
-import React, {useEffect, useState, VFC} from 'react';
-import {useLanguage} from '../hooks/useLanguage';
+import React, {useState, VFC} from 'react';
 import {useWebSocket} from '../context/WebSocket';
 import {
+  Box,
   Button,
   Modal,
   ModalBody,
@@ -13,7 +13,6 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import {useSession} from 'next-auth/react';
-import {useRouter} from 'next/router';
 import {useGeoPosition} from '../hooks/useGeoPosition';
 import {TwitterLoginButton} from './TwitterLoginButton';
 
@@ -55,12 +54,13 @@ export const TweetPannel: VFC<TweetPannelProps> =
       };
       return (
         <>
-          <Modal isOpen={isOpen} onClose={onClose}>
+          <Modal isOpen={isOpen} onClose={onClose} colorScheme={'blackAlpha'}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Tweet</ModalHeader>
+              <ModalHeader>ツイートして世界に波を起こそう！</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
+                <Box mb={4}>あなたがインターネットを使っていて言われて一番嫌だったことや一番嬉しかった言葉を発信して世界に波を起こしてみましょう!</Box>
                 <Textarea onChange={(e) => {
                   setTweetText(e.target.value);
                 }} value={tweetText} minHeight={'144px'} />

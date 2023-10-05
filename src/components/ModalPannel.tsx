@@ -1,13 +1,10 @@
-import React, {useEffect, useRef, useState, VFC} from 'react';
+import React, {useEffect, useState, VFC} from 'react';
 import {Icon} from '@chakra-ui/react';
 import {AiOutlineClose} from 'react-icons/ai';
-import {IoEarth} from 'react-icons/io5';
 import InfoButton from './InfoButton';
 import {gsap} from 'gsap';
 import {useLanguage} from '../hooks/useLanguage';
-import {signIn, useSession} from 'next-auth/react';
-import {useWebSocket} from '../context/WebSocket';
-import {Alert} from '@reach/alert';
+
 import {
   conceptDescription,
   conceptTitle,
@@ -17,7 +14,6 @@ import {
   joinTitle,
 } from '../utils/translateText';
 import {TwitterLoginButton} from './TwitterLoginButton';
-import {useWindowSize} from '../hooks/useWindowSize';
 
 
 export const ModalPannel: VFC = () => {
@@ -56,7 +52,8 @@ export const ModalPannel: VFC = () => {
                     {opacity: 1, pointerEvents: 'auto', duration: 3, delay: 1});
           }, 0.1);
         }}>
-          <Icon width={12} height={12} as={AiOutlineClose} color={'whiteAlpha.500'}/>
+          <Icon width={12} height={12}
+            as={AiOutlineClose} color={'whiteAlpha.500'}/>
         </div>
         <h2 className={'modalTitle'}>{conceptTitle(language)}</h2>
         <div className={'modalText'}>{conceptDescription(language)}</div>
@@ -79,13 +76,25 @@ export const ModalPannel: VFC = () => {
           gsap.to('.scale', {scale: 0.15, rotate: 0, duration: 0.5});
           gsap.to('.text', {fill: 'url(#d)', duration: 0.5});
           gsap.to('.fill', {fill: '#FFFFFF', duration: 0.5});
-          gsap.to('.circle', {fill: '#FFFFFF', strokeOpacity: 1, duration: 0.5});
+          gsap
+              .to('.circle',
+                  {fill: '#FFFFFF', strokeOpacity: 1, duration: 0.5});
           gsap.set('.infoButton', {pointerEvents: 'none'});
           gsap.to('.infoButton', {opacity: 0, duration: 0.5});
           gsap.to('.modalBackground', {opacity: 0.5, duration: 0.5});
-          gsap.to('.modalBackground', {x: '-50%', y: '-50%', left: '50%', top: '50%', width: '37.5%', height: '60%', duration: 0.5, delay: 0.5});
+          gsap
+              .to('.modalBackground',
+                  {x: '-50%',
+                    y: '-50%',
+                    left: '50%',
+                    top: '50%',
+                    width: '37.5%',
+                    height: '60%',
+                    duration: 0.5,
+                    delay: 0.5});
           setTimeout(() => {
-            gsap.to('.modalPanel', {pointerEvents: 'auto', opacity: 1, duration: 3.0});
+            gsap.to('.modalPanel',
+                {pointerEvents: 'auto', opacity: 1, duration: 3.0});
           }, 1000);
         }}
         onMouseEnter={(event) => {
@@ -93,7 +102,8 @@ export const ModalPannel: VFC = () => {
             gsap.to('.scale', {scale: 0.2, rotate: 360, duration: 0.5});
             gsap.to('.text', {fill: 'white', duration: 0.5});
             gsap.to('.fill', {fill: '#000000', duration: 0.5});
-            gsap.to('.circle', {fill: '#000000', strokeOpacity: 0, duration: 0.5});
+            gsap.to('.circle',
+                {fill: '#000000', strokeOpacity: 0, duration: 0.5});
           }
         }}
         onMouseLeave={(event) => {
@@ -102,7 +112,8 @@ export const ModalPannel: VFC = () => {
               gsap.to('.scale', {scale: 0.15, rotate: 0, duration: 0.5});
               gsap.to('.text', {fill: 'url(#d)', duration: 0.5});
               gsap.to('.fill', {fill: '#FFFFFF', duration: 0.5});
-              gsap.to('.circle', {fill: '#FFFFFF', strokeOpacity: 1, duration: 0.5});
+              gsap.to('.circle',
+                  {fill: '#FFFFFF', strokeOpacity: 1, duration: 0.5});
             }
           }, 100);
         }}

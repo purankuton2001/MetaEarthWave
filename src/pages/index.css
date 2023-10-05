@@ -1,3 +1,7 @@
+.tweetBoxText{
+	margin: 8px;
+}
+
 .modalPanel{
 	pointer-events: none;
 	opacity: 0;

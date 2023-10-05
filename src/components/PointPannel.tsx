@@ -36,7 +36,6 @@ export const PointPannel: VFC = () => {
   }, [earthState?.score.positiveScore]);
   const [positiveScore, setPositiveScore] = useState<number>(0);
   const [negativeScore, setNegativeScore] = useState<number>(0);
-  console.log(negativeScore);
   if (!earthState) {
     return <div />;
   }
