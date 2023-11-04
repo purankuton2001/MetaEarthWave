@@ -3,12 +3,16 @@ import type {AppProps} from 'next/app';
 import {ChakraProvider} from '@chakra-ui/react';
 import {SessionProvider} from 'next-auth/react';
 import Head from 'next/head';
+import {EarthRotationProvider} from '../context/useEarthRotation';
 
 function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
   return (
     <SessionProvider session={session}>
       <Head>
         <title>MetaEarthWave</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+        <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
@@ -46,7 +50,9 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
 
       </Head>
       <ChakraProvider>
-        <Component {...pageProps} />
+        <EarthRotationProvider>
+          <Component {...pageProps} />
+        </EarthRotationProvider>
       </ChakraProvider>
     </SessionProvider>
 

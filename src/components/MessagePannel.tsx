@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState, VFC} from 'react';
+import React, {useContext, useLayoutEffect, useRef, useState, VFC} from 'react';
 import {Icon} from '@chakra-ui/react';
 import {AiOutlineClose} from 'react-icons/ai';
 import {gsap} from 'gsap';
@@ -6,6 +6,8 @@ import {useWebSocket} from '../context/WebSocket';
 import Image from 'next/image';
 import {ModalState} from '../pages';
 import {FiMessageCircle} from 'react-icons/fi';
+import {hex2rgb, mix, rgb2hex} from '../utils';
+import {EarthRotationContext, useEarthRotation} from '../context/useEarthRotation';
 
 type ModalPannelProps = {
   modalState: ModalState,
@@ -15,6 +17,7 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const earthState: any = useWebSocket();
   const messageList = useRef<HTMLDivElement>(null!);
+  const {dispatch} = useContext(EarthRotationContext);
   useLayoutEffect(() => {
     gsap.set('.messagePannel', {x: '100%'});
   }, []);
@@ -32,7 +35,10 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
         </div>
         <div className={'messageList'}>
           {!loading && earthState?.tweets.map((tweet: any, index: number) => {
-            return (<div className={'messageItem'} key={index}>
+            return (<div className={'messageItem'} key={index} onClick={() => {
+              dispatch({type: 'TOGGLE_PLAYING'});
+              // console.log(playing);
+            }}>
               <div className={'messageHeader'}>
                 <Image
                   className={'profileImage'}
@@ -40,6 +46,8 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
                   width={32}
                   height={32}/>
                 <h2 className={'name'}>{tweet.account.name}</h2>
+                <div style={{color: rgb2hex(mix(hex2rgb('#00E0FF'),
+                    hex2rgb('#FF00E5'), (tweet.score+1)/2))}}>{Math.floor(tweet.score * 100)}</div>
               </div>
               <div className={'messageText'}>{tweet.text}</div>
             </div>);

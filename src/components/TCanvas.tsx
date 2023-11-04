@@ -1,15 +1,17 @@
-import React, {Suspense, useRef, VFC} from 'react';
+import React, {Suspense, useContext, useRef, VFC} from 'react';
 import {OrbitControls, Stats} from '@react-three/drei';
 import {Canvas} from '@react-three/fiber';
 import {Effect} from './Effect';
 import Earth from './Earth';
 import {Euler, Vector3} from 'three';
 import {NoiseShader} from '../../shader/NoiseShader';
+import {EarthRotationContext} from '../context/useEarthRotation';
 
 
 export const TCanvas: VFC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
-
+  const {state, dispatch} = useContext(EarthRotationContext);
+  console.log(state);
 
   return (
     <Canvas
@@ -26,7 +28,7 @@ export const TCanvas: VFC = () => {
       <Stats />
       <Suspense fallback={null}>
         <ambientLight intensity={1} />
-        <Earth position={new Vector3(0, 0, 0)}/>
+        <Earth rotation={state.earthRotation} playing={state.playing} dispatch={dispatch} position={new Vector3(0, 0, 0)}/>
         <mesh
           position={new Vector3(0, 0, 0)}
           scale={3}

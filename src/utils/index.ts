@@ -1,4 +1,4 @@
-import {Vector3, Vector4} from 'three';
+import {Vector3} from 'three';
 
 export function hex2rgb( hex: string ) {
   if ( hex.slice(0, 1) == '#' ) hex = hex.slice(1);

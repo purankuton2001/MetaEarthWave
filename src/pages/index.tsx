@@ -74,6 +74,8 @@ const App: NextPage = () => {
         style={{
           width: '100vw',
           height: '100vh',
+          minWidth: '700px',
+          minHeight: '420px',
           position: 'relative',
           overflow: 'hidden'}}>
         <PointPannel />

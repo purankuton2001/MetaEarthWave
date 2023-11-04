@@ -41,7 +41,7 @@ export const PointPannel: VFC = () => {
   }
   return (
     <div className={'pointPannel'}>
-      <PointPannelBackground/>
+      <PointPannelBackground style={{marginTop: '-32px'}} />
       <div className={'negativeScoreGage'}
         style={{width: `${(Math.abs(negativeScore)/
                 (positiveScore + negativeScore))*343}px`}} />
