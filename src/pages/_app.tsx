@@ -35,7 +35,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
           content="Make waves on the planet with your tweets" />
         <meta
           name="twitter:image:src"
-          content="https://www.meta-earth-wave.art/assets/images/MetaEarthWave.png" />
+          content="https://www.meta-earth-wave.art/assets/images/MetaEarthWaveTwitter.png" />
 
         <meta property="og:site_name" content="MetaEarthWave" />
         <meta property="og:url" content="https://www.meta-earth-wave.art" />
@@ -46,7 +46,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
           content="Make waves on the planet with your tweets" />
         <meta
           property="og:image"
-          content="https://www.meta-earth-wave.art/assets/images/MetaEarthWave.png" />
+          content="https://www.meta-earth-wave.art/assets/images/MetaEarthWaveIcon.png" />
 
       </Head>
       <ChakraProvider>
