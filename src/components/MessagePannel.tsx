@@ -7,7 +7,7 @@ import Image from 'next/image';
 import {ModalState} from '../pages';
 import {FiMessageCircle} from 'react-icons/fi';
 import {hex2rgb, mix, rgb2hex} from '../utils';
-import {EarthRotationContext, useEarthRotation} from '../context/useEarthRotation';
+import {EarthRotationContext} from '../context/useEarthRotation';
 
 type ModalPannelProps = {
   modalState: ModalState,
