@@ -1,7 +1,7 @@
 import React, {createContext, useReducer} from 'react';
 
 // Reducer関数
-const earthRotationReducer = (state, action) => {
+const earthRotationReducer = (state:any, action:any) => {
   switch (action.type) {
     case 'SET_ROTATION':
       return {...state, earthRotation: action.payload};
@@ -15,7 +15,7 @@ const earthRotationReducer = (state, action) => {
 // コンテキストの作成
 export const EarthRotationContext = createContext({});
 
-export const EarthRotationProvider = ({children}) => {
+export const EarthRotationProvider = ({children}:any) => {
   // useReducerを使用して状態とdispatchを取得
   const [state, dispatch] = useReducer(earthRotationReducer, {
     earthRotation: 0,

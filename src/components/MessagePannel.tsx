@@ -17,7 +17,7 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const earthState: any = useWebSocket();
   const messageList = useRef<HTMLDivElement>(null!);
-  const {dispatch} = useContext(EarthRotationContext);
+  const {dispatch} = useContext<any>(EarthRotationContext);
   useLayoutEffect(() => {
     gsap.set('.messagePannel', {x: '100%'});
   }, []);
