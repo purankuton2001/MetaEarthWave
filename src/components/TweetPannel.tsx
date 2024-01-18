@@ -53,9 +53,9 @@ export const TweetPannel: VFC<TweetPannelProps> =
       };
       return (
         <>
-          <Modal isOpen={isOpen} onClose={onClose} colorScheme={'blackAlpha'}>
-            <ModalOverlay />
-            <ModalContent>
+          <Modal isOpen={isOpen} onClose={onClose} colorScheme={'blackAlpha'} isCentered>
+            <ModalOverlay bgColor={'blackAlpha.500'}/>
+            <ModalContent bgColor={'blackAlpha.600'} color={'white'} backdropFilter={'blur(8px)'}>
               <ModalHeader>ツイートして世界に波を起こそう！</ModalHeader>
               <ModalCloseButton />
               <ModalBody>

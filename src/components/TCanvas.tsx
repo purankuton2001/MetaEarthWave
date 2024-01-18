@@ -11,7 +11,6 @@ import {EarthRotationContext} from '../context/useEarthRotation';
 export const TCanvas: VFC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const {state, dispatch} = useContext<any>(EarthRotationContext);
-  console.log(state);
 
   return (
     <Canvas

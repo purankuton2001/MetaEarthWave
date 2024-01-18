@@ -51,7 +51,7 @@ void main(){
     vec2 uv = gl_FragCoord.xy/iResolution;
     vec3 texture = texture2D(earthTexture, vUv).rgb;
     texture.r += .1;
-    vec2 ratioedUV = vec2(vUv.x, vUv.y*iResolution.y/iResolution.x);
+    vec2 ratioedUV = vec2(0.5 + abs(vUv.x - 0.5), vUv.y*iResolution.y/iResolution.x);
     float n = noise(vec3(ratioedUV*100./period+iTime/5., iTime/5.));
     vec2 baseUV = ratioedUV * rotate2D(n*displaceForce);
     vec3 purpleColor = vec3(1,0, 0.933333);

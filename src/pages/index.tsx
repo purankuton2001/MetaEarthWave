@@ -90,16 +90,6 @@ const App: NextPage = () => {
             left: 0,
             right: 0,
             width: '20%'}} />
-        <TweetPannel
-          isOpen={Boolean(tweetBox)}
-          onOpen={() => {}}
-          onClose={() => {
-            if (!playing) {
-              setPlaying(true);
-              audio.current.play();
-            }
-            router.push('/');
-          }} />
         <div
           style={{position: 'absolute', bottom: 0, height: 0, width: '100%'}}
           ref={scrollBottom}
@@ -107,18 +97,25 @@ const App: NextPage = () => {
       </div>}
       {(height > width) &&
           <div style={{
+            background: 'black',
             width: '100vw',
             height: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
           }}>
-            <div style={{
-              textAlign: 'center',
-            }}>
-              {screenOrientation(language)}
-            </div>
+            <TwitterLoginButton />
           </div>}
+      <TweetPannel
+        isOpen={Boolean(tweetBox)}
+        onOpen={() => {}}
+        onClose={() => {
+          if (!playing) {
+            setPlaying(true);
+            audio.current.play();
+          }
+          router.push('/');
+        }} />
     </>
   );
 };

@@ -38,7 +38,7 @@ export function tweetButton(lang: string) {
     case 'ja':
       return '波を生み出す';
     default:
-      return 'Creating Waves';
+      return 'Create Wave';
   }
 };
 
