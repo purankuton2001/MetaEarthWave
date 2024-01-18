@@ -30,7 +30,6 @@ export const useWebSocket = () => {
       return;
     }
     const socket = new WebSocket(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
-    console.log(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
     socket.addEventListener('message', (ev) => {
       const data = JSON.parse(ev.data);
       setEarthState({...data, socket});
