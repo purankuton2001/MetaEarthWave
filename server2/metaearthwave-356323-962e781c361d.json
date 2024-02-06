@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "metaearthwave-356323",
+  "private_key_id": "962e781c361d787f570c972660f305ca469a3927",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCflW4b7P3aXadr\nmc5E5PSn88Q/K58oJHeZ7Bcr1A4OLBk6I2UQ0PVaTAlHJfQ7wB4bTcL9VWPD7Z42\nZiXyiJJZEXH0k14TMSkLn4R5EAqedfphZAcj+qWVmTFZNeUrh6T2OKtLO1/pFO+7\nQ9JNtQtsiethIjpjr7/OhedH6mr9iiKzZufZHd43ySHXJlR31QDecpTkl3gYtRwv\ncfIloparRABiXDvrF0jyJK1YYt+FZcbt6CC95/F8zuQufQcWO0JX2ARHmKqkjwwT\neIgLiYh5IqL/sdIs0oq9XI5cSCSmdyD2jAGbZ8yL9fA0MyYmuWiFxJgGsGHLwkvz\nrQR+vBOrAgMBAAECggEAKZu9D1Pt5kMX9WKvWOA3eBkDWJMnlsBXXM8lRXyvQ3u1\nAicbYVSSPD5qBt56/R882lKeng3nCr1ITJe6mi+ItOdrBmFsHGXrdUfcsvH/Ssyp\nAT6i6/sctFIyfzehroVZ+gbRhraO7cdTMEjhKvii52RYdkWF4tr+kDrykBorVjqF\n37T09b17oS0o+Pq98L0p81ZrDVWHNN2zgJqy2p8WvMWLv2FG8FNrxR9No+vTrwV+\nhMByLnMrd0iGqAN9fg6XR3GcOtnG0FeQMdgza10HnD85sda/vy8+aIA/SLjhgEMd\n6B95L3wYdaRqkMIGslCkfCnCeNLIF/4Vddwnt0kjpQKBgQDZQ7G824ER1ojLcjIU\n94rMMSGTEUpE301bydC5D2DNvGClWuZJ1RXmXu7G60xlyJImEgoB2OL3fjJqb+hP\n1kCjpq/73FqXYgdEhQXTSWuAb5EGG1ZzpmnEVwAyddayDOhlWTFuB3tjwHmU/Bax\npOI/MaG53lsLnCAOl9BH5FP2hQKBgQC8CRfOFgxr6vGi5Xiz21y0kYE+Djsd1uT4\nfc6n2XRdgkYhNVWYaVA1u+/ue6DHE1In4qW87kXbKbTMnX3ah/jsAxm68QtG+4Ls\nxbtuTF6LBLHYzYxQLljPgzaV+EECKPIcjNxZ1sSFeUpb9zWBVXtmxYWJC5J4hSG4\nQxxZErJwbwKBgQCRbOFcc2TKZto7q11gcW1DTiOWCD25Keri5IxEQsneDBh4tgZt\nJyc4gxS6qycA/ibtOqfeIqmRVbQzUGKkhdnQcLNdF1q/94q7z3pducguOP9Ooh/U\n22/yTvW/0OZ7WW544CHY70MlOuFm2vHpyF70Q6ln+zDf7Yn7mpx8cpXM7QKBgFqH\nBi7x7okGU89ZKwNsWPWWF+MIdu2myBXae+PTjXJ3hcv3IX5/NV6pXJo0avNtGeCZ\n/bE4Bem96o2YRT8wt2bpFzopUoSaEi5sBBDWM646VGVMkIEJzzgYs+7/1kxz6hxU\ntMGL5JFeE66zFc9umDqiXefc6mebsOBFbyBzH/WBAoGBALauDdqRWmWvxmhNwlU9\nOipdxwI6sHHneY3R3xeqflXS+PiH++Gp/Xiu63QZG0NjRwDR7Yx/OBTYznaCBleX\nDMKz033pOA+fkaoW5dtvDqehooMs7hkQP1994+RZiCvk3Cjvc35AD/ESfQ7m0kZH\nxPgNcIRBqHZLjewXLHfQW3ZL\n-----END PRIVATE KEY-----\n",
+  "client_email": "naturallanguageapi-quickstart@metaearthwave-356323.iam.gserviceaccount.com",
+  "client_id": "107326730355325721091",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/naturallanguageapi-quickstart%40metaearthwave-356323.iam.gserviceaccount.com"
+}

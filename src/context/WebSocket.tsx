@@ -1,3 +1,4 @@
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import {useLayoutEffect, useRef, useState} from 'react';
 type Loc = number[];
 type Tweet = {
@@ -29,8 +30,9 @@ export const useWebSocket = () => {
     if (!process.env.NEXT_PUBLIC_WEBSOCKET_URL) {
       return;
     }
-    const socket = new WebSocket(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
-    socket.addEventListener('message', (ev) => {
+    const socket =
+        new ReconnectingWebSocket(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
+    socket.addEventListener('message', (ev:any) => {
       const data = JSON.parse(ev.data);
       setEarthState({...data, socket});
     });
