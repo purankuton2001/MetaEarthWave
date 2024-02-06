@@ -20,12 +20,12 @@ type EarthState={
     positiveScore: number,
     negativeScore: number
   }
-  socket: WebSocket,
+  socket: ReconnectingWebSocket,
 }
 
 export const useWebSocket = () => {
   const [earthState, setEarthState] = useState<EarthState>();
-  const WebSocketRef = useRef<WebSocket>();
+  const WebSocketRef = useRef<ReconnectingWebSocket>();
   useLayoutEffect(() => {
     if (!process.env.NEXT_PUBLIC_WEBSOCKET_URL) {
       return;
