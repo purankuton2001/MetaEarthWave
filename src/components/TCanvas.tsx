@@ -24,7 +24,6 @@ export const TCanvas: VFC = () => {
         attach="orbitControls"
         enableZoom={false}
         enablePan={false}/>
-      <Stats />
       <Suspense fallback={null}>
         <ambientLight intensity={1} />
         <Earth rotation={state.earthRotation} playing={state.playing} dispatch={dispatch} position={new Vector3(0, 0, 0)}/>
