@@ -7,6 +7,8 @@ and Twitter submission path remain. No separate page or preview controls ship.
 ## Setup
 
 Use Node.js 22 (`.nvmrc`), `yarn install --frozen-lockfile`, then `yarn dev`.
+The Yarn engine check is disabled for the legacy next-auth Node range; Node 22
+is pinned in package.json and .nvmrc and verified by the production build.
 Copy `.env.example` to `.env.local` and set `TYPESAFE_API_KEY` on the server.
 Without a key, emotion analysis is disabled and POST returns 503. No keyword/demo
 fallback is included. Upstream errors return 502, with a 12-second request timeout.
