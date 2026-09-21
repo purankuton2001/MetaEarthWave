@@ -1,4 +1,5 @@
 import './index.css';
+import {EarthStateProvider} from '../context/WebSocket';
 import type {AppProps} from 'next/app';
 import {ChakraProvider} from '@chakra-ui/react';
 import {SessionProvider} from 'next-auth/react';
@@ -48,9 +49,9 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
 
       </Head>
       <ChakraProvider>
-        <EarthRotationProvider>
+        <EarthStateProvider><EarthRotationProvider>
           <Component {...pageProps} />
-        </EarthRotationProvider>
+        </EarthRotationProvider></EarthStateProvider>
       </ChakraProvider>
     </SessionProvider>
 

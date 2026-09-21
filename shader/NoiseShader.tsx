@@ -1,43 +1,10 @@
-import {useControls} from 'leva';
-import React, {useEffect, useMemo, useRef, VFC} from 'react';
-import {ShaderPass} from 'three-stdlib';
-import {extend, useFrame} from '@react-three/fiber';
+import React, {useMemo} from 'react';
+import {useFrame} from '@react-three/fiber';
 import NoiseFrag from './Noise.frag';
-import {DoubleSide, ShaderMaterial, Uniform, Vector2} from 'three';
-import {useWindowSize} from '../src/hooks/useWindowSize';
-
-
+import Fluid from './Fluid.glsl';
+import {DoubleSide, Uniform, Vector2} from 'three';
 export const NoiseShader = () => {
-  // const uniforms = useControls('Noise', {
-  //   displaceForce: {value: 0.1, min: 0, max: 1, step: 0.01},
-  //   period: {value: 9, min: 0, max: 10, step: 0.01},
-  //   timeSpeed: {value: 4, min: 0, max: 10, step: 0.01},
-  // });
-  const {width, height} = useWindowSize();
-  const shaderRef = useRef<ShaderMaterial>(null!);
-  if (shaderRef.current) {
-  shaderRef.current!.uniforms.iResolution.value = new Vector2(width, height);
-  }
-  useFrame(() => {
-     shaderRef.current!.uniforms.iTime.value += 0.01 * 4;
-  });
-  // useEffect(() => {
-  //   shaderRef.current!.uniforms.displaceForce.value = uniforms.displaceForce;
-  //   shaderRef.current!.uniforms.period.value = uniforms.period;
-  // }, [uniforms]);
-
-  return useMemo(() =>
-    <shaderMaterial
-      side={DoubleSide}
-      ref={shaderRef}
-      fragmentShader={NoiseFrag}
-      uniforms={
-        {iResolution: new Uniform(new Vector2(0, 0)),
-          iTime: new Uniform(0.0),
-          displaceForce: new Uniform(0.1),
-          period: new Uniform(9),
-        }}
-    />, [],
-  );
+  const uniforms = useMemo(() => ({iResolution: new Uniform(new Vector2(1,1)), iTime: new Uniform(0)}), []);
+  useFrame(({size}, delta) => {uniforms.iResolution.value.set(size.width,size.height); uniforms.iTime.value += delta*.6;});
+  return <shaderMaterial side={DoubleSide} fragmentShader={Fluid+'\n'+NoiseFrag} uniforms={uniforms}/>;
 };
-

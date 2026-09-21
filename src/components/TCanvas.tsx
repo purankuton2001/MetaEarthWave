@@ -1,5 +1,6 @@
+import {EarthStateBridge, useWebSocket} from '../context/WebSocket';
 import React, {Suspense, useContext, useRef, VFC} from 'react';
-import {OrbitControls, Stats} from '@react-three/drei';
+import {OrbitControls} from '@react-three/drei';
 import {Canvas} from '@react-three/fiber';
 import {Effect} from './Effect';
 import Earth from './Earth';
@@ -9,6 +10,7 @@ import {EarthRotationContext} from '../context/useEarthRotation';
 
 
 export const TCanvas: VFC = () => {
+  const earthState = useWebSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null!);
   const {state, dispatch} = useContext<any>(EarthRotationContext);
 
@@ -20,6 +22,7 @@ export const TCanvas: VFC = () => {
         near: 0.1,
         far: 2000,
       }}>
+      <EarthStateBridge value={earthState}>
       <OrbitControls
         attach="orbitControls"
         enableZoom={false}
@@ -36,6 +39,7 @@ export const TCanvas: VFC = () => {
         </mesh>
       </Suspense>
       <Effect />
+      </EarthStateBridge>
     </Canvas>
   );
 };

@@ -1,6 +1,6 @@
 import {EarthProps} from '../../types/util';
 import {useFrame} from '@react-three/fiber';
-import {useContext, useRef} from 'react';
+import {useRef} from 'react';
 import {EarthShader} from '../../shader/EarthShader';
 import {Mesh} from 'three';
 
@@ -17,7 +17,7 @@ export default function Earth({position, rotation, playing, dispatch}: EarthProp
     }
   });
   return (
-    <mesh position={position} ref={ref}>
+    <mesh name="emotion-earth" position={position} ref={ref}>
       <sphereGeometry />
       <EarthShader />
     </mesh>
