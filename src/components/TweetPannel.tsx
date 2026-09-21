@@ -16,6 +16,12 @@ export const TweetPannel: VFC<Props> = ({isOpen, onClose}) => {
   const earth = useWebSocket();
   useEffect(() => {
     if (!isOpen) return;
+    const origin = earth.theme?.groups.find(group => group.id === earth.focusGroup) || earth.theme?.groups[0];
+    if (origin) {
+      setLocation({latitude: origin.latitude, longitude: origin.longitude});
+      const index = cities.findIndex(city => city.lat === origin.latitude && city.lon === origin.longitude);
+      setCity(index >= 0 ? index : 0);
+    }
     let live = true;
     fetch('/api/wave-emotion').then(response => {if (!response.ok) throw new Error(); return response.json();}).then(result => {if (live) setMode(result.mode);}).catch(() => {if (live) setMode('error');});
     return () => {live = false;};
@@ -31,7 +37,7 @@ export const TweetPannel: VFC<Props> = ({isOpen, onClose}) => {
       if (!response.ok) throw new Error(result.error || '判定できませんでした。');
       const emotions = result.emotions;
       const score = Math.max(-1, Math.min(1, (emotions.joy + emotions.empathy)/2 - (emotions.sadness + emotions.anger + emotions.anxiety)/3));
-      earth.addLocalTweet({_id: `local-${Date.now()}-${Math.random().toString(36).slice(2)}`, text: text.trim(), time: new Date().toISOString(), loc: [location.latitude, location.longitude], cityName: location.latitude === cities[city].lat && location.longitude === cities[city].lon ? cities[city].name : `${location.latitude}°, ${location.longitude}°`, score, emotions, source: result.source, account: {id: 0, name: 'あなたの波', screenName: '', profileImage: '/assets/images/favicon.png'}});
+      earth.addLocalTweet({_id: `local-${Date.now()}-${Math.random().toString(36).slice(2)}`, text: text.trim(), time: new Date().toISOString(), loc: [location.latitude, location.longitude], cityName: location.latitude === cities[city].lat && location.longitude === cities[city].lon ? cities[city].name : `${location.latitude}°, ${location.longitude}°`, score, emotions, themeId: earth.theme?.theme.id, themeTitle: earth.theme?.theme.title, source: result.source, account: {id: 0, name: 'あなたの波', screenName: '', profileImage: '/assets/images/favicon.png'}});
       setText(''); onClose();
     } catch (e) {setError(e instanceof Error && e.name !== 'AbortError' ? e.message : '接続できませんでした。もう一度お試しください。');}
     finally {clearTimeout(timeout); pending.current = false; setBusy(false);}
@@ -49,6 +55,7 @@ export const TweetPannel: VFC<Props> = ({isOpen, onClose}) => {
       <ModalHeader>言葉で世界に波を起こそう！</ModalHeader><ModalCloseButton isDisabled={busy}/>
       <ModalBody>
         <Box mb={4}>嬉しかったこと、悲しかったこと。混ざった気持ちを、そのまま地球に広げてみましょう。</Box>
+        {earth.theme && <Text color="cyan.100" mb={3}>「{earth.theme.theme.title}」にあなたの波を重ねます</Text>}
         <FormLabel htmlFor="emotion-text">あなたの言葉</FormLabel>
         <Textarea id="emotion-text" value={text} onChange={event => setText(event.target.value)} maxLength={280} minHeight="144px" isDisabled={busy}/>
         <Text textAlign="right" fontSize="sm">{text.length} / 280</Text>

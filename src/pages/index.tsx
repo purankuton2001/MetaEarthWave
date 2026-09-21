@@ -1,3 +1,4 @@
+import {ThemePanel} from '../components/ThemePanel';
 import reportWebVitals from '../reportWebVitals';
 import React, {useLayoutEffect, useRef, useState} from 'react';
 import {TCanvas} from '../components/TCanvas';
@@ -79,6 +80,7 @@ const App: NextPage = () => {
           position: 'relative',
           overflow: 'hidden'}}>
         <PointPannel />
+        <ThemePanel />
         <MessagePannel modalState={modalState}/>
         <ModalPannel />
         <AuthorPannel />
