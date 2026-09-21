@@ -1,99 +1,65 @@
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useMemo, useRef} from 'react';
 import {useFrame} from '@react-three/fiber';
 import EarthFrag from './Earth.frag';
+import Fluid from './Fluid.glsl';
 import EarthVert from './Earth.vert';
-import {ShaderMaterial, Uniform, Vector2, Vector3, Vector4} from 'three';
-import {useWindowSize} from '../src/hooks/useWindowSize';
+import {Color, ShaderMaterial, Uniform, Vector2, Vector3, Vector4} from 'three';
 import {useTexture} from '@react-three/drei';
 import {useWebSocket} from '../src/context/WebSocket';
 import {translateGeoCoords} from '../src/utils';
-
+import {axes, colors, Emotions} from '../src/lib/waveEmotion';
 
 export const EarthShader = () => {
   const earthTexture = useTexture('earth_light.jpg');
-  let waveValue = 0;
   const earthState = useWebSocket();
   const shaderRef = useRef<ShaderMaterial>(null!);
-  const {width, height} = useWindowSize();
-
-
-  useEffect(() => {
-    const now = new Date();
-    const limitTime = now.setMinutes(now.getMinutes() - 1);
-
-    earthState?.tweets.forEach(({score, loc, time}) => {
-      if (Date.parse(time) >= limitTime && loc) {
-        addWave(loc[0], loc[1], score);
-      }
-    });
-  }, [earthState]); // 一分前までのツイートを抽出して波を発生させる関数を呼ぶ
-  if (shaderRef.current) {
-  shaderRef.current!.uniforms.iResolution.value = new Vector2(width, height);
-  }
-  useFrame(() => {
-     shaderRef.current!.uniforms.iTime.value += 0.01;
+  const uniforms = useMemo(() => ({
+    iResolution: new Uniform(new Vector2(1, 1)), iTime: new Uniform(0), waveTime: new Uniform(0), earthTexture: new Uniform(earthTexture),
+    waves: new Uniform(Array.from({length: 20}, () => new Vector4(0, 0, 0, -2))),
+    emotionColors: new Uniform(Array.from({length: 20}, () => new Vector4(0, 0, 0, 0))),
+    waveKinds: new Uniform(Array(20).fill(-1)),
+    waveAges: new Uniform(Array(20).fill(0)),
+    waveTravelAges: new Uniform(Array(20).fill(0)),
+    waveWeights: new Uniform(Array(20).fill(1)),
+  }), [earthTexture]);
+  useFrame(({size}, delta) => {
+    if (!shaderRef.current) return;
+    uniforms.iTime.value += delta * .6;
+    uniforms.waveTime.value += delta * .6;
+    uniforms.iResolution.value.set(size.width, size.height);
+    let index = 0;
+    const put = (center: Vector3, strength: number, age: number, kind = -1, weight = 1) => {
+      if (index >= 20) return;
+      uniforms.waves.value[index].set(center.x, center.y, center.z, strength);
+      if (kind >= 0) {const c = new Color(colors[axes[kind]]); uniforms.emotionColors.value[index].set(c.r, c.g, c.b, 1);}
+      else uniforms.emotionColors.value[index].set(0, 0, 0, 0);
+      uniforms.waveKinds.value[index] = kind;
+      uniforms.waveAges.value[index] = age;
+      uniforms.waveTravelAges.value[index] = age;
+      uniforms.waveWeights.value[index] = weight;
+      index++;
+    };
+    const putBlend = (center: Vector3, emotions: Emotions, age: number) => {
+      const strength = Math.max(...axes.map(axis => emotions[axis]));
+      const total = axes.reduce((sum, axis) => sum + emotions[axis], 0);
+      const active = axes.filter(axis => emotions[axis] > 0);
+      // Never drop just one part of a blend when the buffer is full.
+      if (!strength || index + active.length > 20) return;
+      active.forEach(axis => put(center, strength, age, axes.indexOf(axis), emotions[axis] / Math.max(1, total)));
+    };
+    const now = Date.now();
+    earthState.tweets
+      .filter(tweet => Date.parse(tweet.time) >= now - 60000 && Date.parse(tweet.time) <= now &&
+        tweet.loc?.length >= 2 && Number.isFinite(tweet.loc[0]) && Math.abs(tweet.loc[0]) <= 90 &&
+        Number.isFinite(tweet.loc[1]) && Math.abs(tweet.loc[1]) <= 180 && Number.isFinite(tweet.score))
+      .sort((a, b) => Date.parse(b.time) - Date.parse(a.time))
+      .slice(0, 20).forEach(tweet => {
+        const center = translateGeoCoords(tweet.loc[0], tweet.loc[1], 1);
+        const age = Math.max(0, (now - Date.parse(tweet.time)) / 1000);
+        if (tweet.emotions) putBlend(center, tweet.emotions, age);
+        else put(center, Math.max(-1, Math.min(1, tweet.score)), age);
+      });
+    for (; index < 20; index++) uniforms.waves.value[index].set(0, 0, 0, -2);
   });
-
-  // 指定した場所にした大きさの波を一定時間発生させる
-  const addWave = (latitude: number, longitude: number, score: number) => {
-    if (shaderRef.current && waveValue <= 20) {
-      const newWave = shaderRef.current.uniforms.waves.value;
-      const wavePostion = translateGeoCoords(latitude, longitude, 1);
-      newWave[waveValue] = new Vector4(wavePostion.x, wavePostion.y, wavePostion.z, score);
-      shaderRef.current.uniforms.waves.value = newWave;
-
-      waveValue++;
-
-      // 規定時間後に波を消す
-      setTimeout(() => {
-        const newWave = shaderRef.current.uniforms.waves.value;
-        const waveIndex = newWave.findIndex((element: any) => {
-          return element.x !== -2;
-        });
-        newWave[waveIndex] = new Vector3(-2);
-        shaderRef.current.uniforms.waves.value = newWave;
-        waveValue--;
-      }, 60000);
-    }
-  };
-
-
-  return useMemo(() =>
-    <shaderMaterial
-      ref={shaderRef}
-      fragmentShader={EarthFrag}
-      vertexShader={EarthVert}
-      uniforms={
-        {iResolution: new Uniform(new Vector2(0, 0)),
-          iTime: new Uniform(0.0),
-          earthTexture: new Uniform(earthTexture),
-          period: new Uniform(5),
-          displaceForce: new Uniform(0.3),
-          waves:
-            new Uniform([
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-              new Vector4(0, 0, 0, -2),
-            ]),
-        }}
-    />, [],
-  );
+  return <shaderMaterial ref={shaderRef} fragmentShader={Fluid+'\n'+EarthFrag} vertexShader={EarthVert} uniforms={uniforms}/>;
 };
-

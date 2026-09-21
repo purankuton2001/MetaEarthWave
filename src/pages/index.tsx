@@ -89,7 +89,7 @@ const App: NextPage = () => {
             margin: 'auto',
             left: 0,
             right: 0,
-            width: '20%'}} />
+            width: '20%', zIndex: 35}} />
         <div
           style={{position: 'absolute', bottom: 0, height: 0, width: '100%'}}
           ref={scrollBottom}
@@ -104,6 +104,7 @@ const App: NextPage = () => {
             flexDirection: 'column',
             justifyContent: 'center',
           }}>
+            <p style={{color: 'white', textAlign: 'center', marginBottom: 24}}>{screenOrientation(language)}</p>
             <TwitterLoginButton />
           </div>}
       <TweetPannel
