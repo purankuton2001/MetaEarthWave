@@ -10,7 +10,7 @@ export type Hold = 'still' | 'float' | 'sway' | 'swirl' | 'tremor';
 export type Exit = 'dissolve' | 'ascend' | 'descend' | 'disperse';
 export type Layout = 'yoko' | 'tate' | 'orbit';
 export type CaptionCut = {text: string; start: number; dur: number; inDur: number; outDur: number; enter: Enter; hold: Hold; exit: Exit; layout: Layout; seed: number};
-export type CaptionPlan = {id: string; mood: Axis; font: string; color: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number; spin: number; look: Look};
+export type CaptionPlan = {id: string; mood: Axis; font: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number; spin: number; look: Look};
 // Motes drift like foam around the text; the direction follows the emotion's wave (joy lifts, sadness sinks…).
 export type Motes = 'up' | 'down' | 'swirl' | 'drift';
 // Text styling: white type washed with the emotion's colour, a soft glow and a quiet shadow for legibility.
@@ -51,6 +51,8 @@ export function dominant(source: CaptionSource): Axis {
 }
 
 const breakAfter = /[、。！？!?,.，．…\s]/;
+// Closing brackets and quotes belong with the punctuation before them (「すごい！」 stays in one cut).
+const closers = /[」』）)】〉》”’"']/;
 // Split a post into short lyric "cuts": break at punctuation, then at a max length.
 export function splitCuts(text: string, max = 12, limit = 4) {
   const chars = Array.from(text.replace(/\s+/g, ' ').trim());
@@ -59,9 +61,11 @@ export function splitCuts(text: string, max = 12, limit = 4) {
   chars.forEach((ch, i) => {
     if (!cur && ch === ' ') return;
     cur += ch;
-    // Keep runs of punctuation (！？, 。」) together so no cut starts with a stray mark.
+    // Keep runs of punctuation and closing brackets (！？, 。」) together so no cut starts with a stray mark.
     const next = chars[i + 1];
-    if (breakAfter.test(ch) && !(next && next !== ' ' && breakAfter.test(next)) && Array.from(cur.trim()).length >= 3) {out.push(cur.trim()); cur = '';}
+    const ends = breakAfter.test(ch) || (closers.test(ch) && i > 0 && breakAfter.test(chars[i - 1]));
+    const more = Boolean(next && next !== ' ' && (breakAfter.test(next) || closers.test(next)));
+    if (ends && !more && Array.from(cur.trim()).length >= 3) {out.push(cur.trim()); cur = '';}
     else if (Array.from(cur).length >= max) {out.push(cur); cur = '';}
   });
   if (cur.trim()) out.push(cur.trim());
@@ -93,7 +97,7 @@ export function planCaption(source: CaptionSource): CaptionPlan | null {
   const strength = source.emotions ? Math.round(source.emotions[mood] * 100) : Math.round(Math.abs(source.score) * 100);
   const label = [source.cityName, `${labels[mood]} ${strength}`].filter(Boolean).join(' · ');
   const look: Look = {tint: style.tint[0] + (style.tint[1] - style.tint[0]) * hash(seed, 7), glow: 0.32 + 0.14 * hash(seed, 8), motes: style.motes};
-  const base = {id: source._id, mood, font: CAPTION_FONT, color: '#ffffff', accent: colors[mood], label, seed, spin: style.spin, look};
+  const base = {id: source._id, mood, font: CAPTION_FONT, accent: colors[mood], label, seed, spin: style.spin, look};
   const ring = Array.from(pieces.join('　'));
   // Orbit only when the whole post fits on the ring — a truncated ring reads as broken.
   if (ring.length <= ORBIT_MAX && hash(seed, 6) < ORBIT_CHANCE) {
@@ -128,11 +132,7 @@ export function planCaption(source: CaptionSource): CaptionPlan | null {
 export const clamp = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 export const ease = {
   outCubic: (x: number) => 1 - Math.pow(1 - clamp(x), 3),
-  inCubic: (x: number) => Math.pow(clamp(x), 3),
-  outQuint: (x: number) => 1 - Math.pow(1 - clamp(x), 5),
-  outExpo: (x: number) => (x = clamp(x)) === 1 ? 1 : 1 - Math.pow(2, -10 * x),
   inOutSine: (x: number) => -(Math.cos(Math.PI * clamp(x)) - 1) / 2,
-  inOutExpo: (x: number) => {x = clamp(x); return x === 0 || x === 1 ? x : x < 0.5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;},
 };
 
 export type Glyph = {dx: number; dy: number; a: number; blur: number};

@@ -7,7 +7,8 @@ const SHADOW = 'rgba(20, 6, 48, 0.62)';
 const TATE_SHIFT = '、。，．', TATE_ROTATE = 'ー〜～…‥―-()（）「」『』';
 
 type Point = {x: number; y: number};
-const placed = new WeakMap<CaptionPlan, {side: number; x: number; y: number}>();
+// Where each caption's text block was placed, as fractions of the viewport so a resize keeps it on screen.
+const placed = new WeakMap<CaptionPlan, {side: number; fx: number; fy: number}>();
 export type Globe = Point & {r: number};
 
 const rgba = (hex: string, a: number) => {
@@ -40,12 +41,12 @@ export function drawCaption(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t:
   // the hairline follows the wave. (Following it made the text slide and eventually leave the screen.)
   if (anchor && t < 0.6 && !placed.has(plan)) {
     const side = ax < W / 2 ? 1 : -1;
-    placed.set(plan, {side, x: clamp(ax + side * W * 0.22, W * 0.32, W * 0.68), y: clamp(ay - H * 0.12, H * 0.3 + blockH / 2, H * 0.78 - blockH / 2 - size * 0.6)});
+    placed.set(plan, {side, fx: clamp(ax / W + side * 0.22, 0.32, 0.68), fy: ay / H - 0.12});
   }
   const spot = placed.get(plan);
   const side = spot ? spot.side : 1;
-  const cx = spot ? spot.x : W / 2;
-  const cy = spot ? spot.y : clamp(H * 0.45, H * 0.3 + blockH / 2, H * 0.78 - blockH / 2 - size * 0.6);
+  const cx = spot ? spot.fx * W : W / 2;
+  const cy = clamp(spot ? spot.fy * H : H * 0.45, H * 0.3 + blockH / 2, H * 0.78 - blockH / 2 - size * 0.6);
   const labelY = cy + blockH / 2 + size * 0.6;
 
   ctx.save();
@@ -56,7 +57,9 @@ export function drawCaption(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t:
   if (onGlobe) {
     const q = reduced ? 1 : ease.inOutSine(clamp((t - 0.2) / 0.9));
     const ex = cx - side * size * 0.3, ey = labelY - size * 0.3;
-    ctx.globalAlpha = 0.45 * fadeAll; ctx.strokeStyle = mixWhite(plan.accent, 0.6); ctx.lineWidth = 0.8;
+    // Once the globe carries the wave toward (or past) the pinned text, the line would cut through it; fade it out.
+    const clear = clamp((side * (cx - ax) - size * 1.5) / (size * 2));
+    ctx.globalAlpha = 0.45 * fadeAll * clear; ctx.strokeStyle = mixWhite(plan.accent, 0.6); ctx.lineWidth = 0.8;
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax + (ex - ax) * q, ay + (ey - ay) * q); ctx.stroke();
     ctx.globalAlpha = 0.8 * fadeAll; ctx.fillStyle = mixWhite(plan.accent, 0.6);
     ctx.beginPath(); ctx.arc(ax, ay, 2.4, 0, Math.PI * 2); ctx.fill();
@@ -84,7 +87,8 @@ function drawCut(ctx: CanvasRenderingContext2D, plan: CaptionPlan, cut: CaptionP
   const chars = Array.from(cut.text);
   const tate = cut.layout === 'tate';
   // Shrink long cuts so they fit ~60% of the width.
-  const fontSize = tate ? size : Math.min(size, W * 0.6 / Math.max(1, chars.length * 1.02));
+  // Glyphs are ~1em wide plus 0.08em tracking, so divide by 1.1em per character.
+  const fontSize = tate ? size : Math.min(size, W * 0.6 / Math.max(1, chars.length * 1.1));
   ctx.save();
   ctx.font = `${CAPTION_WEIGHT} ${fontSize}px ${plan.font}`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -92,6 +96,7 @@ function drawCut(ctx: CanvasRenderingContext2D, plan: CaptionPlan, cut: CaptionP
   const widths = chars.map(ch => tate ? fontSize * 1.12 : ctx.measureText(ch).width + fontSize * 0.08);
   const total = widths.reduce((a, b) => a + b, 0);
   const positions = widths.map((w, i) => widths.slice(0, i).reduce((a, b) => a + b, 0) + w / 2 - total / 2);
+  const fill = glyphFill(ctx, plan, fontSize, -0.5);
   chars.forEach((ch, i) => {
     const g = state.glyphs[i];
     const alpha = clamp(g.a) * fadeAll;
@@ -104,7 +109,7 @@ function drawCut(ctx: CanvasRenderingContext2D, plan: CaptionPlan, cut: CaptionP
     else if (tate && TATE_ROTATE.includes(ch)) ctx.rotate(Math.PI / 2);
     ctx.globalAlpha = alpha;
     if (g.blur > 0.4) ctx.filter = `blur(${g.blur.toFixed(1)}px)`;
-    paintGlyph(ctx, plan, ch, fontSize, -0.5, true);
+    paintGlyph(ctx, plan, ch, fontSize, fill, true);
     ctx.restore();
   });
   ctx.restore();
@@ -128,12 +133,12 @@ function ripple(ctx: CanvasRenderingContext2D, plan: CaptionPlan, ax: number, ay
 function label(ctx: CanvasRenderingContext2D, plan: CaptionPlan, x: number, y: number, t: number, size: number, fadeAll: number, reduced: boolean) {
   const q = reduced ? 1 : ease.inOutSine(clamp((t - 0.4) / 1));
   ctx.save();
-  ctx.globalAlpha = fadeAll * 0.95 * q; ctx.fillStyle = mixWhite(plan.accent, 0.35);
+  ctx.globalAlpha = fadeAll * q; ctx.fillStyle = mixWhite(plan.accent, 0.35);
   ctx.font = `600 ${Math.round(size * 0.32)}px ${plan.font}`;
   (ctx as CanvasRenderingContext2D & {letterSpacing?: string}).letterSpacing = `${(size * 0.05).toFixed(1)}px`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowColor = SHADOW; ctx.shadowBlur = size * 0.24;
-  ctx.fillText(plan.label, x, y); ctx.fillText(plan.label, x, y);
+  ctx.shadowColor = SHADOW; ctx.shadowBlur = size * 0.3;
+  ctx.fillText(plan.label, x, y);
   const labelW = ctx.measureText(plan.label).width;
   ctx.shadowBlur = 0; ctx.globalAlpha = fadeAll * 0.4;
   ctx.fillRect(x - labelW / 2 * q, y + size * 0.24, labelW * q, 0.8);
@@ -180,6 +185,7 @@ function drawOrbit(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, 
   ctx.save();
   ctx.font = `${CAPTION_WEIGHT} ${glyph}px ${plan.font}`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  const fill = glyphFill(ctx, plan, glyph, -0.85);
   for (const p of glyphs) {
     if (!frontLine && p.depth >= 0) {orbitLine(0, Math.PI * sweep, 0.45); frontLine = true;}
     const g = state.glyphs[p.i];
@@ -195,25 +201,30 @@ function drawOrbit(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, 
     // Glyphs on the far side soften a little, like depth of field.
     const blur = g.blur + (p.depth < 0 ? -p.depth * glyph * 0.05 : 0);
     if (blur > 0.4) ctx.filter = `blur(${blur.toFixed(1)}px)`;
-    paintGlyph(ctx, plan, p.ch, glyph, -0.85, p.depth > 0);
+    paintGlyph(ctx, plan, p.ch, glyph, fill, p.depth > 0);
     ctx.restore();
   }
   if (!frontLine) orbitLine(0, Math.PI * sweep, 0.45);
   ctx.restore();
 }
 
+// Vertical white-to-tint fill in glyph-local coordinates; shared by every glyph of a cut.
+// `top` is where the glyph's top sits relative to the anchor, in ems (-0.5 for middle baseline, -0.85 for alphabetic).
+function glyphFill(ctx: CanvasRenderingContext2D, plan: CaptionPlan, size: number, top: number) {
+  const fill = ctx.createLinearGradient(0, top * size, 0, (top + 1) * size);
+  fill.addColorStop(0, '#ffffff');
+  fill.addColorStop(1, mixWhite(plan.accent, plan.look.tint));
+  return fill;
+}
+
 // One glyph in local coordinates (origin on the glyph's anchor, current alpha/filter already set).
 // Two passes: a quiet dark shadow for legibility, then white-to-tint type with a coloured glow.
-// `top` is where the glyph's top sits relative to the anchor, in ems (-0.5 for middle baseline, -0.85 for alphabetic).
-function paintGlyph(ctx: CanvasRenderingContext2D, plan: CaptionPlan, ch: string, size: number, top: number, glow: boolean) {
-  const look = plan.look, alpha = ctx.globalAlpha;
+function paintGlyph(ctx: CanvasRenderingContext2D, plan: CaptionPlan, ch: string, size: number, fill: CanvasGradient, glow: boolean) {
+  const alpha = ctx.globalAlpha;
   ctx.shadowColor = SHADOW; ctx.shadowBlur = size * 0.32; ctx.shadowOffsetY = size * 0.03;
   ctx.globalAlpha = alpha * 0.85; ctx.fillStyle = SHADOW; ctx.fillText(ch, 0, 0);
   ctx.shadowOffsetY = 0;
-  const fill = ctx.createLinearGradient(0, top * size, 0, (top + 1) * size);
-  fill.addColorStop(0, '#ffffff');
-  fill.addColorStop(1, mixWhite(plan.accent, look.tint));
-  if (glow) {ctx.shadowColor = rgba(plan.accent, 0.75); ctx.shadowBlur = size * look.glow;} else ctx.shadowBlur = 0;
+  if (glow) {ctx.shadowColor = rgba(plan.accent, 0.75); ctx.shadowBlur = size * plan.look.glow;} else ctx.shadowBlur = 0;
   ctx.globalAlpha = alpha; ctx.fillStyle = fill; ctx.fillText(ch, 0, 0);
   ctx.shadowBlur = 0;
 }
@@ -222,7 +233,15 @@ function paintGlyph(ctx: CanvasRenderingContext2D, plan: CaptionPlan, ch: string
 // They drift the way the emotion's wave moves: up (joy), down (sadness), around (anger), aimlessly (anxiety, empathy).
 function motes(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, x: number, y: number, w: number, h: number, fadeAll: number) {
   const seed = plan.seed, kind = plan.look.motes;
+  // Two unit-radius soft dots (white, accent) reused for every mote via translate/scale.
+  const dot = (colour: string) => {
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    g.addColorStop(0, colour); g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    return g;
+  };
+  const white = dot('rgba(255, 255, 255, 1)'), tinted = dot(rgba(plan.accent, 1));
   ctx.save();
+  const base = ctx.getTransform();
   for (let k = 0; k < 14; k++) {
     const speed = 0.06 + hash(seed, k, 1) * 0.06, phase = hash(seed, k, 2);
     const q = (t * speed + phase) % 1;
@@ -234,10 +253,9 @@ function motes(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, x: n
     const a = Math.sin(q * Math.PI) * (0.25 + 0.35 * hash(seed, k, 5)) * fadeAll;
     if (a <= 0.02) continue;
     const r = 1.6 + hash(seed, k, 6) * 3.4;
-    const g = ctx.createRadialGradient(px, py, 0, px, py, r * 2.2);
-    g.addColorStop(0, k % 3 ? 'rgba(255, 255, 255, 1)' : rgba(plan.accent, 1)); g.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.globalAlpha = a; ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(px, py, r * 2.2, 0, Math.PI * 2); ctx.fill();
+    ctx.setTransform(base.translate(px, py).scale(r * 2.2));
+    ctx.globalAlpha = a; ctx.fillStyle = k % 3 ? white : tinted;
+    ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fill();
   }
   ctx.restore();
 }

@@ -58,7 +58,7 @@ export const WaveCaption: VFC = () => {
       if (!plan) continue;
       // Canvas text only uses a web font once it is loaded; request it before the first cut.
       // Japanese web fonts are split into unicode-range subsets, so pass the text to fetch the right ones.
-      document.fonts?.load(`${CAPTION_WEIGHT} 48px ${plan.font}`, tweet.text).catch(() => {});
+      document.fonts?.load(`${CAPTION_WEIGHT} 48px ${plan.font}`, tweet.text + plan.label).catch(() => {});
       queue.current.push({plan, loc: tweet.loc});
       if (queue.current.length > MAX_QUEUE) queue.current.splice(1, queue.current.length - MAX_QUEUE);
       setAnnounce(`新しい波: ${tweet.text}`);

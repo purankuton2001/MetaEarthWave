@@ -14,6 +14,7 @@ test('splits posts into short lyric cuts at punctuation', () => {
   assert.equal(long.length, 4);
   assert.ok(long[3].endsWith('…'));
   assert.deepEqual(splitCuts('   '), []);
+  assert.deepEqual(splitCuts('友達が「すごいね！」って言ってくれた。'), ['友達が「すごいね！」', 'って言ってくれた。']);
   assert.deepEqual(splitCuts('また仕様変更！？締切は変わらないのに、ほんとありえない！'), ['また仕様変更！？', '締切は変わらないのに、', 'ほんとありえない！']);
 });
 
