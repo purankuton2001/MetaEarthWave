@@ -12,7 +12,22 @@ No Next.js server or SSR endpoint is exposed. API handlers, including NextAuth,
 run with Node compatibility. `next/headers` is stubbed only for NextAuth's unused
 App Router branch. Pages Router requests always pass explicit request/response objects.
 
-## Build and publish
+## CI/CD
+
+`.github/workflows/deploy.yml` runs on every pull request and on pushes to `main`:
+tests, type check, `yarn build:cloudflare` and `wrangler deploy --dry-run`.
+On `main` (push or manual "Run workflow") it then runs `wrangler deploy` and checks that
+meta-earth-wave.com serves the new build ID and that `/api/themes` answers.
+
+Repository settings it needs:
+
+- Secret `CLOUDFLARE_API_TOKEN`: a Cloudflare API token from the "Edit Cloudflare Workers" template
+- Variable `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID (not secret)
+
+Worker runtime secrets are managed with `wrangler secret put` as below; CI never sees them.
+To roll back, use `wrangler rollback` or pick an earlier version in the Cloudflare dashboard.
+
+## Build and publish (manual)
 
 Use Node 22 (see package.json engines) and Wrangler 4.129.1 or later:
 
