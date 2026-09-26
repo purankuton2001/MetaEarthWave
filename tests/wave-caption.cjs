@@ -59,3 +59,14 @@ test('orbit captions carry the whole post as one ring, capped in length', () => 
   }
   assert.ok(plans.some(plan => plan.cuts[0].layout !== 'orbit'));
 });
+
+test('looks come from the mood palette and vary between posts', () => {
+  const {moods} = require('../src/lib/waveCaption.ts');
+  const plans = Array.from({length: 60}, (_, i) => planCaption({_id: `l${i}`, text: 'ふざけるな', score: -0.9}));
+  for (const plan of plans) {
+    assert.equal(plan.mood, 'anger');
+    assert.ok(moods.anger.palettes.some(p => p[0] === plan.look.fill[0] && p[1] === plan.look.fill[1]));
+    assert.ok(plan.look.chroma > 0 && plan.look.extrude >= 4 && plan.look.particles === 'ember');
+  }
+  assert.ok(new Set(plans.map(plan => plan.look.fill.join() + plan.look.extrude + plan.look.outline)).size > 2);
+});

@@ -1,5 +1,5 @@
 // Canvas2D renderer for wave captions (see waveCaption.ts for the planner and motion recipes).
-import {CaptionPlan, cutState, ease, clamp} from './waveCaption';
+import {CaptionPlan, cutState, ease, clamp, hash} from './waveCaption';
 
 const INK = 'rgba(24, 8, 48, 0.75)';
 const TATE_SHIFT = '、。，．', TATE_ROTATE = 'ー〜～…‥―-()（）「」『』';
@@ -47,16 +47,17 @@ export function drawCaption(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t:
     ctx.fillStyle = plan.accent; ctx.beginPath(); ctx.arc(ax, ay, 3, 0, Math.PI * 2); ctx.fill();
   }
   label(ctx, plan, cx, labelY, t, size, fadeAll, reduced);
+  if (!reduced) particles(ctx, plan, t, step, cx, cy, tate ? size * 2.6 : W * 0.5, blockH + size, fadeAll);
   ctx.restore();
 
   for (const cut of plan.cuts) {
     const lt = t - cut.start;
     if (lt < 0 || lt > cut.dur) continue;
-    drawCut(ctx, plan, cut, cutState(cut, lt, glyph, step, reduced), cx, cy, glyph, W);
+    drawCut(ctx, plan, cut, cutState(cut, lt, glyph, step, reduced), cx, cy, glyph, W, t, step, reduced);
   }
 }
 
-function drawCut(ctx: CanvasRenderingContext2D, plan: CaptionPlan, cut: CaptionPlan['cuts'][number], state: ReturnType<typeof cutState>, cx: number, cy: number, size: number, W: number) {
+function drawCut(ctx: CanvasRenderingContext2D, plan: CaptionPlan, cut: CaptionPlan['cuts'][number], state: ReturnType<typeof cutState>, cx: number, cy: number, size: number, W: number, t: number, step: number, reduced: boolean) {
   const chars = Array.from(cut.text);
   const tate = cut.layout === 'tate';
   // Shrink long cuts so they fit ~60% of the width.
@@ -81,12 +82,7 @@ function drawCut(ctx: CanvasRenderingContext2D, plan: CaptionPlan, cut: CaptionP
     else if (tate && TATE_ROTATE.includes(ch)) ctx.rotate(Math.PI / 2);
     ctx.globalAlpha = clamp(g.a);
     if (g.blur > 0.5) ctx.filter = `blur(${g.blur.toFixed(1)}px)`;
-    // Dark outline keeps the pale glyphs readable over the bright fluid background.
-    ctx.lineJoin = 'round'; ctx.lineWidth = fontSize * 0.12; ctx.strokeStyle = INK;
-    ctx.strokeText(ch, 0, 0);
-    ctx.shadowColor = plan.accent; ctx.shadowBlur = fontSize * 0.35;
-    ctx.fillStyle = plan.color;
-    ctx.fillText(ch, 0, 0);
+    paintGlyph(ctx, plan, ch, fontSize, i, t, step, -0.5, true, reduced);
     ctx.restore();
   });
 
@@ -152,6 +148,7 @@ function drawOrbit(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, 
   ctx.globalAlpha = fadeAll; ctx.fillStyle = scrim; ctx.fillRect(-1, -1, 2, 2);
   ctx.restore();
   label(ctx, plan, front.x, labelY, t, size, fadeAll, reduced);
+  if (!reduced) particles(ctx, plan, t, step, globe.x, globe.y, R * 2.1, R * FLAT * 2 + glyph * 3, fadeAll);
   ctx.restore();
   if (lt < 0 || lt > cut.dur) return;
 
@@ -188,13 +185,89 @@ function drawOrbit(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, 
     ctx.scale(g.s * g.sx * face * persp, g.s * g.sy * persp);
     ctx.globalAlpha = alpha;
     if (g.blur > 0.5) ctx.filter = `blur(${g.blur.toFixed(1)}px)`;
-    ctx.lineJoin = 'round'; ctx.lineWidth = glyph * 0.12; ctx.strokeStyle = INK;
-    ctx.strokeText(p.ch, 0, 0);
-    if (p.depth > 0) {ctx.shadowColor = plan.accent; ctx.shadowBlur = glyph * 0.35;}
-    ctx.fillStyle = plan.color;
-    ctx.fillText(p.ch, 0, 0);
+    paintGlyph(ctx, plan, p.ch, glyph, p.i, t, step, -0.85, p.depth > 0, reduced);
     ctx.restore();
   }
   if (!frontLine) orbitLine(0, Math.PI * sweep, 0.55);
+  ctx.restore();
+}
+
+const mixHex = (a: string, b: string, k: number) => {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const ch = (shift: number) => Math.round(((pa >> shift) & 255) * (1 - k) + ((pb >> shift) & 255) * k);
+  return `rgb(${ch(16)}, ${ch(8)}, ${ch(0)})`;
+};
+
+// One glyph in local coordinates (origin on the glyph's anchor, current alpha/filter already set).
+// Layers, back to front: chromatic ghosts → extrusion → dark outline → gradient fill (or outline-only) with glow.
+// `top` is where the glyph's top sits relative to the anchor, in ems (-0.5 for middle baseline, -0.85 for alphabetic).
+function paintGlyph(ctx: CanvasRenderingContext2D, plan: CaptionPlan, ch: string, size: number, i: number, t: number, step: number, top: number, glow: boolean, reduced: boolean) {
+  const look = plan.look, alpha = ctx.globalAlpha;
+  if (look.chroma > 0) {
+    // RGB split; jumps with the step clock so it reads as a glitchy aberration.
+    const d = size * 0.07 * look.chroma * (reduced ? 1 : 0.6 + 0.8 * hash(plan.seed, step, i, 71));
+    ctx.globalAlpha = alpha * 0.75;
+    ctx.fillStyle = '#ff2a6d'; ctx.fillText(ch, -d, 0);
+    ctx.fillStyle = '#19e0ff'; ctx.fillText(ch, d, d * 0.3);
+  }
+  for (let k = look.extrude; k > 0; k--) {
+    ctx.globalAlpha = alpha * (1 - 0.5 * k / look.extrude);
+    ctx.fillStyle = look.extrudeColor; ctx.fillText(ch, k * size * 0.022, k * size * 0.022);
+  }
+  ctx.globalAlpha = alpha;
+  ctx.lineJoin = 'round'; ctx.lineWidth = size * 0.12; ctx.strokeStyle = INK;
+  ctx.strokeText(ch, 0, 0);
+  // Shimmer slides the two palette colours along the text over time.
+  const shift = look.shimmer && !reduced ? (Math.sin(t * 2.4 - i * 0.6) + 1) / 2 : 0;
+  const fill = ctx.createLinearGradient(0, top * size, 0, (top + 1) * size);
+  fill.addColorStop(0, mixHex(look.fill[0], look.fill[1], shift * 0.6));
+  fill.addColorStop(1, mixHex(look.fill[1], look.fill[0], shift * 0.6));
+  if (glow) {ctx.shadowColor = look.fill[1]; ctx.shadowBlur = size * 0.45;}
+  if (look.outline) {
+    ctx.lineWidth = size * 0.055; ctx.strokeStyle = fill; ctx.strokeText(ch, 0, 0);
+    ctx.shadowBlur = 0; ctx.globalAlpha = alpha * 0.22;
+  }
+  ctx.fillStyle = fill; ctx.fillText(ch, 0, 0);
+  ctx.globalAlpha = alpha; ctx.shadowBlur = 0;
+}
+
+// Ambient particles around the text box (centre x, y; size w × h), deterministic from the plan seed.
+function particles(ctx: CanvasRenderingContext2D, plan: CaptionPlan, t: number, step: number, x: number, y: number, w: number, h: number, fadeAll: number) {
+  const seed = plan.seed, kind = plan.look.particles;
+  ctx.save();
+  if (kind === 'sparkle') {
+    for (let k = 0; k < 20; k++) {
+      const a = Math.max(0, Math.sin(t * 3.2 + hash(seed, k, 1) * 6.28)) * fadeAll;
+      if (a <= 0.02) continue;
+      const px = x + (hash(seed, k, 2) - 0.5) * w * 1.1, py = y + (hash(seed, k, 3) - 0.5) * h * 1.3 - t * 6;
+      const r = (4 + hash(seed, k, 4) * 8) * (0.6 + 0.4 * a);
+      ctx.globalAlpha = a; ctx.fillStyle = k % 3 ? '#ffffff' : plan.look.fill[1];
+      ctx.beginPath();
+      ctx.moveTo(px, py - r); ctx.quadraticCurveTo(px, py, px + r, py); ctx.quadraticCurveTo(px, py, px, py + r);
+      ctx.quadraticCurveTo(px, py, px - r, py); ctx.quadraticCurveTo(px, py, px, py - r); ctx.fill();
+    }
+  } else if (kind === 'rain') {
+    ctx.strokeStyle = '#e4ecff'; ctx.lineWidth = 1.6;
+    for (let k = 0; k < 22; k++) {
+      const q = (t * (0.55 + hash(seed, k, 5) * 0.3) + hash(seed, k, 6)) % 1;
+      const px = x + (hash(seed, k, 7) - 0.5) * w * 1.2 - q * 18, py = y - h * 0.8 + q * h * 1.6, len = 10 + hash(seed, k, 8) * 14;
+      ctx.globalAlpha = 0.7 * Math.sin(q * Math.PI) * fadeAll;
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - len * 0.25, py + len); ctx.stroke();
+    }
+  } else if (kind === 'ember') {
+    for (let k = 0; k < 26; k++) {
+      const q = (t * (0.35 + hash(seed, k, 9) * 0.3) + hash(seed, k, 10)) % 1;
+      const px = x + (hash(seed, k, 11) - 0.5) * w + Math.sin(t * 3 + k) * 8, py = y + h * 0.7 - q * h * 1.6;
+      ctx.globalAlpha = (1 - q) * fadeAll; ctx.fillStyle = k % 2 ? '#ffb36b' : plan.look.fill[1]; ctx.shadowColor = '#ff7a2e'; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(px, py, 2 + hash(seed, k, 12) * 3.5, 0, Math.PI * 2); ctx.fill();
+    }
+  } else if (kind === 'noise') {
+    // Glitch blocks: a few thin bars flash in and out on the step clock.
+    for (let k = 0; k < 5; k++) {
+      if (hash(seed, step, k, 13) > 0.35) continue;
+      ctx.globalAlpha = 0.55 * fadeAll; ctx.fillStyle = k % 2 ? plan.accent : '#19e0ff';
+      ctx.fillRect(x + (hash(seed, step, k, 14) - 0.5) * w, y + (hash(seed, step, k, 15) - 0.5) * h, 20 + hash(seed, step, k, 16) * w * 0.25, 2 + hash(seed, step, k, 17) * 4);
+    }
+  }
   ctx.restore();
 }

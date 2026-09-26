@@ -47,7 +47,11 @@ and glitches, anxiety types and jitters, empathy rises and sways. A ripple and l
 while it faces the camera.
 About half of captions (`ORBIT_CHANCE`) instead wrap the whole post (up to 28 characters) around the
 globe as a tilted ring of text that revolves once or so; the back half is mirrored and dimmed as it passes
-behind the globe, and the spin speed follows the emotion (anger fastest, sadness slowest). Up to three captions queue; reduced-motion users get a plain fade.
+behind the globe, and the spin speed follows the emotion (anger fastest, sadness slowest).
+Each caption also gets a look from its emotion (with some variation per post): a two-colour gradient fill,
+optional RGB-split chromatic aberration (anger, anxiety), 3D extrusion (joy, anger, empathy), outline-only type,
+a shimmer that slides the colours along the text (joy, empathy), and ambient particles: sparkles (joy, empathy),
+rain (sadness), rising embers (anger) or glitch bars (anxiety). Up to three captions queue; reduced-motion users get a plain fade.
 Planner: `src/lib/waveCaption.ts`, renderer: `src/lib/waveCaptionDraw.ts`, overlay: `src/components/WaveCaption.tsx`.
 
 ## Validation

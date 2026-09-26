@@ -8,17 +8,26 @@ export type Hold = 'still' | 'jitter' | 'wave' | 'breathe' | 'glitch';
 export type Exit = 'fade' | 'sink' | 'glitch' | 'scatter' | 'lift';
 export type Layout = 'yoko' | 'tate' | 'orbit';
 export type CaptionCut = {text: string; start: number; dur: number; inDur: number; outDur: number; enter: Enter; hold: Hold; exit: Exit; layout: Layout; seed: number};
-export type CaptionPlan = {id: string; mood: Axis; font: string; color: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number; spin: number};
+export type CaptionPlan = {id: string; mood: Axis; font: string; color: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number; spin: number; look: Look};
+export type Particles = 'sparkle' | 'rain' | 'ember' | 'noise';
+// Text styling, after JIZURA's text items: gradient fill, chromatic ghosts, extrusion, outline-only type.
+export type Look = {fill: [string, string]; chroma: number; extrude: number; extrudeColor: string; outline: boolean; shimmer: boolean; particles: Particles};
 export type CaptionSource = {_id: string; text: string; score: number; emotions?: Emotions; cityName?: string};
 
-type Mood = {font: string; color: string; accent: string; enter: Enter[]; hold: Hold[]; exit: Exit[]; tate: number; spin: number};
+type Mood = {font: string; accent: string; enter: Enter[]; hold: Hold[]; exit: Exit[]; tate: number; spin: number;
+  palettes: [string, string][]; chroma: number[]; extrude: number[]; extrudeColor: string; outline: number; shimmer: boolean; particles: Particles};
 // Each emotion gets a JIZURA-like "style": typeface, palette and the motions that suit it.
 export const moods: Record<Axis, Mood> = {
-  joy: {font: '"Mochiy Pop One", "M PLUS Rounded 1c", sans-serif', color: '#fff4d6', accent: '#f4cf78', enter: ['pop', 'drop'], hold: ['wave', 'breathe'], exit: ['lift', 'scatter'], tate: 0, spin: 1.1},
-  sadness: {font: '"Zen Old Mincho", serif', color: '#e4ecff', accent: '#709cff', enter: ['blur', 'type'], hold: ['breathe', 'still'], exit: ['sink', 'fade'], tate: 0.6, spin: 0.45},
-  anger: {font: '"Dela Gothic One", sans-serif', color: '#ffe6ec', accent: '#f57e96', enter: ['slice', 'drop'], hold: ['jitter', 'glitch'], exit: ['glitch', 'scatter'], tate: 0, spin: 1.6},
-  anxiety: {font: '"DotGothic16", monospace', color: '#efe6ff', accent: '#b898ff', enter: ['type', 'slice'], hold: ['jitter', 'glitch'], exit: ['glitch', 'fade'], tate: 0.2, spin: 0.9},
-  empathy: {font: '"M PLUS Rounded 1c", sans-serif', color: '#e2fbf6', accent: '#65dcc8', enter: ['rise', 'blur'], hold: ['wave', 'breathe'], exit: ['lift', 'fade'], tate: 0.3, spin: 0.7},
+  joy: {font: '"Mochiy Pop One", "M PLUS Rounded 1c", sans-serif', accent: '#f4cf78', enter: ['pop', 'drop'], hold: ['wave', 'breathe'], exit: ['lift', 'scatter'], tate: 0, spin: 1.1,
+    palettes: [['#fff6b0', '#ff4fa3'], ['#fff1c2', '#ff8a1f'], ['#ffffff', '#ff5ccd']], chroma: [0], extrude: [0, 5], extrudeColor: '#b8437a', outline: 0, shimmer: true, particles: 'sparkle'},
+  sadness: {font: '"Zen Old Mincho", serif', accent: '#709cff', enter: ['blur', 'type'], hold: ['breathe', 'still'], exit: ['sink', 'fade'], tate: 0.6, spin: 0.45,
+    palettes: [['#e8f0ff', '#4f7dff'], ['#f0eaff', '#7a6bff']], chroma: [0], extrude: [0], extrudeColor: '#23346b', outline: 0.35, shimmer: false, particles: 'rain'},
+  anger: {font: '"Dela Gothic One", sans-serif', accent: '#f57e96', enter: ['slice', 'drop'], hold: ['jitter', 'glitch'], exit: ['glitch', 'scatter'], tate: 0, spin: 1.6,
+    palettes: [['#ffe066', '#ff1f3d'], ['#ffc2a8', '#e8002a']], chroma: [1, 1.4], extrude: [4, 6], extrudeColor: '#4d0718', outline: 0.15, shimmer: false, particles: 'ember'},
+  anxiety: {font: '"DotGothic16", monospace', accent: '#b898ff', enter: ['type', 'slice'], hold: ['jitter', 'glitch'], exit: ['glitch', 'fade'], tate: 0.2, spin: 0.9,
+    palettes: [['#e0fffb', '#8a5cff'], ['#ffffff', '#b14dff']], chroma: [0.8, 1.2], extrude: [0], extrudeColor: '#2e1a5c', outline: 0.5, shimmer: false, particles: 'noise'},
+  empathy: {font: '"M PLUS Rounded 1c", sans-serif', accent: '#65dcc8', enter: ['rise', 'blur'], hold: ['wave', 'breathe'], exit: ['lift', 'fade'], tate: 0.3, spin: 0.7,
+    palettes: [['#e6fff9', '#12bfa2'], ['#ffe9f3', '#1fb8a8'], ['#f4f2ff', '#6f86ff']], chroma: [0], extrude: [0, 3], extrudeColor: '#1b5f58', outline: 0.2, shimmer: true, particles: 'sparkle'},
 };
 
 // Deterministic hash → 0..1 (JIZURA never uses Math.random at render time).
@@ -79,7 +88,11 @@ export function planCaption(source: CaptionSource): CaptionPlan | null {
   const mood = dominant(source), style = moods[mood], seed = hashText(source._id + source.text);
   const strength = source.emotions ? Math.round(source.emotions[mood] * 100) : Math.round(Math.abs(source.score) * 100);
   const label = [source.cityName, `${labels[mood]} ${strength}`].filter(Boolean).join(' · ');
-  const base = {id: source._id, mood, font: style.font, color: style.color, accent: style.accent, label, seed, spin: style.spin};
+  const look: Look = {
+    fill: pick(style.palettes, hash(seed, 7)), chroma: pick(style.chroma, hash(seed, 8)), extrude: pick(style.extrude, hash(seed, 9)),
+    extrudeColor: style.extrudeColor, outline: hash(seed, 10) < style.outline, shimmer: style.shimmer, particles: style.particles,
+  };
+  const base = {id: source._id, mood, font: style.font, color: look.fill[0], accent: style.accent, label, seed, spin: style.spin, look};
   if (hash(seed, 6) < ORBIT_CHANCE) {
     // Orbit: the whole post becomes one ring of text revolving around the globe.
     // Band slicing is screen-space, so the slice entrance is swapped for drop on the ring.
