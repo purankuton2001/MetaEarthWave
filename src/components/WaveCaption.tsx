@@ -3,7 +3,7 @@ import {useFrame, useThree} from '@react-three/fiber';
 import {PerspectiveCamera, Vector3} from 'three';
 import {useWebSocket} from '../context/WebSocket';
 import {translateGeoCoords} from '../utils';
-import {CaptionPlan, planCaption} from '../lib/waveCaption';
+import {CAPTION_WEIGHT, CaptionPlan, planCaption} from '../lib/waveCaption';
 import {drawCaption} from '../lib/waveCaptionDraw';
 
 // Where the currently captioned wave sits on screen. Written by the tracker inside the
@@ -57,7 +57,8 @@ export const WaveCaption: VFC = () => {
       const plan = planCaption(tweet);
       if (!plan) continue;
       // Canvas text only uses a web font once it is loaded; request it before the first cut.
-      document.fonts?.load(`48px ${plan.font}`).catch(() => {});
+      // Japanese web fonts are split into unicode-range subsets, so pass the text to fetch the right ones.
+      document.fonts?.load(`${CAPTION_WEIGHT} 48px ${plan.font}`, tweet.text + plan.label).catch(() => {});
       queue.current.push({plan, loc: tweet.loc});
       if (queue.current.length > MAX_QUEUE) queue.current.splice(1, queue.current.length - MAX_QUEUE);
       setAnnounce(`新しい波: ${tweet.text}`);

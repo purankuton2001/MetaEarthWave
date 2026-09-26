@@ -14,8 +14,8 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: AppProps) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin={'true'} />
         <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet" />
-        {/* Wave caption typefaces, one per emotion (see src/lib/waveCaption.ts). */}
-        <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DotGothic16&family=IBM+Plex+Mono&family=M+PLUS+Rounded+1c:wght@700&family=Mochiy+Pop+One&family=Zen+Old+Mincho:wght@700&display=swap" rel="stylesheet" />
+        {/* Wave caption typeface (see src/lib/waveCaption.ts). */}
+        <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@600&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
         <link rel="shortcut icon" href="/favicon/favicon.ico" />

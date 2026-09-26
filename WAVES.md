@@ -39,19 +39,20 @@ and never split a blend when capacity is exhausted.
 ## Wave captions
 
 When a new wave appears (a local Jev post, or a new post from the shared feed that is under 10 seconds old),
-its text plays as a short lyric-video caption over the globe, using motion recipes ported from
-[JIZURA](https://github.com/852wa/JIZURA) (MIT, see `THIRD_PARTY_NOTICES.md`).
-The post is split into up to four short cuts at punctuation. The dominant emotion picks the typeface,
-colour and motions: joy pops and bounces, sadness blurs in (sometimes vertically) and sinks, anger slices
-and glitches, anxiety types and jitters, empathy rises and sways. A ripple and leader line point at the wave
-while it faces the camera.
-About half of captions (`ORBIT_CHANCE`) instead wrap the whole post (up to 28 characters) around the
-globe as a tilted ring of text that revolves once or so; the back half is mirrored and dimmed as it passes
-behind the globe, and the spin speed follows the emotion (anger fastest, sadness slowest).
-Each caption also gets a look from its emotion (with some variation per post): a two-colour gradient fill,
-optional RGB-split chromatic aberration (anger, anxiety), 3D extrusion (joy, anger, empathy), outline-only type,
-a shimmer that slides the colours along the text (joy, empathy), and ambient particles: sparkles (joy, empathy),
-rain (sadness), rising embers (anger) or glitch bars (anxiety). Up to three captions queue; reduced-motion users get a plain fade.
+its text plays as a short lyric-video caption over the globe. The cut structure is ported from
+[JIZURA](https://github.com/852wa/JIZURA) (MIT, see `THIRD_PARTY_NOTICES.md`); the motions are tuned to the
+globe's own wave language so the caption reads as part of the water, not a telop laid on top.
+The post is split into up to four short cuts at punctuation (runs such as ！？ stay together), and the cuts
+cross-dissolve. Every emotion uses the same serif (Zen Old Mincho, paired with the EB Garamond UI): white type
+washed with the emotion colour, a soft coloured glow and a quiet dark shadow for legibility. Emotions differ by
+motion and tempo, mirroring the globe: joy rises and floats upward, sadness settles in from above, lingers and
+sinks (sometimes vertically), anger arrives on a gust, swirls gently and disperses, anxiety comes into focus
+unevenly with a slight smooth tremor, and empathy swells in and sways. Glyphs never rotate, bounce, pop or glitch.
+A slow ripple and a hairline point at the wave while it faces the camera, and a few foam-like motes drift in the
+emotion's direction.
+About half of short captions (`ORBIT_CHANCE`, only when the whole post fits in `ORBIT_MAX` = 28 characters) instead
+wrap the post around the globe as a tilted ring that turns slowly; the back half is mirrored, dimmed and softened
+as it passes behind the globe. Up to three captions queue; reduced-motion users get a plain fade.
 Planner: `src/lib/waveCaption.ts`, renderer: `src/lib/waveCaptionDraw.ts`, overlay: `src/components/WaveCaption.tsx`.
 
 ## Validation
