@@ -17,12 +17,14 @@ export const EarthShader = () => {
   const shaderRef = useRef<ShaderMaterial>(null!);
   const uniforms = useMemo(() => ({
     iResolution: new Uniform(new Vector2(1, 1)), iTime: new Uniform(0), waveTime: new Uniform(0), earthTexture: new Uniform(earthTexture),
-    waves: new Uniform(Array.from({length: 20}, () => new Vector4(0, 0, 0, -2))),
-    emotionColors: new Uniform(Array.from({length: 20}, () => new Vector4(0, 0, 0, 0))),
-    waveKinds: new Uniform(Array(20).fill(-1)),
-    waveAges: new Uniform(Array(20).fill(0)),
-    waveTravelAges: new Uniform(Array(20).fill(0)),
-    waveWeights: new Uniform(Array(20).fill(1)),
+    waves: new Uniform(Array.from({length: 40}, () => new Vector4(0, 0, 0, -2))),
+    emotionColors: new Uniform(Array.from({length: 40}, () => new Vector4(0, 0, 0, 0))),
+    waveRadii: new Uniform(Array(40).fill(0)),
+    waveBlend: new Uniform(Array.from({length: 40}, () => new Vector4(0,0,0,0))),
+    waveKinds: new Uniform(Array(40).fill(-1)),
+    waveAges: new Uniform(Array(40).fill(0)),
+    waveTravelAges: new Uniform(Array(40).fill(0)),
+    waveWeights: new Uniform(Array(40).fill(1)),
   }), [earthTexture]);
   useFrame(({size}, delta) => {
     if (!shaderRef.current) return;
@@ -31,15 +33,17 @@ export const EarthShader = () => {
     uniforms.waveTime.value += delta * .6;
     uniforms.iResolution.value.set(size.width, size.height);
     const report = earthState.theme && Date.now() - Date.parse(earthState.theme.updatedAt) < 30 * 60 * 1000 ? earthState.theme : null;
-    const groups = report?.groups.slice(0, 3) || [];
+    const groups = report?.groups.slice(0, 32) || [];
     // Keep room for the theme and at least one complete personal emotion blend.
-    let capacity = 20 - groups.reduce((sum, group) => sum + axes.filter(axis => group.emotions[axis] > 0).length, 0);
+    let capacity = 40 - groups.length;
     let index = 0;
     const put = (center: Vector3, strength: number, age: number, kind = -1, weight = 1) => {
       if (index >= capacity) return;
       uniforms.waves.value[index].set(center.x, center.y, center.z, strength);
-      if (kind >= 0) {const c = new Color(colors[axes[kind]]); uniforms.emotionColors.value[index].set(c.r, c.g, c.b, 1);}
+      if (kind >= 0 && kind < 5) {const c = new Color(colors[axes[kind]]); uniforms.emotionColors.value[index].set(c.r, c.g, c.b, 1);}
       else uniforms.emotionColors.value[index].set(0, 0, 0, 0);
+      uniforms.waveRadii.value[index] = 0;
+      uniforms.waveBlend.value[index].set(0,0,0,0);
       uniforms.waveKinds.value[index] = kind;
       uniforms.waveAges.value[index] = age;
       uniforms.waveTravelAges.value[index] = age;
@@ -67,13 +71,23 @@ export const EarthShader = () => {
         else put(center, Math.max(-1, Math.min(1, tweet.score)), age);
       });
     // Aggregate groups are an ongoing visualization of a dated sample, not new posts.
-    capacity = 20;
+    capacity = 40;
     if (report) {
       groups.forEach(group => {
-        putBlend(translateGeoCoords(group.latitude, group.longitude, 1), group.emotions, 12);
+        const center = translateGeoCoords(group.latitude, group.longitude, 1);
+        const total = axes.reduce((sum, axis) => sum + group.emotions[axis], 0);
+        if (total <= 0 || index >= 40) return;
+        const slot = index;
+        const strength = Math.max(...axes.map(axis => group.emotions[axis]));
+        put(center, strength, 12, 5);
+        const color = new Color(0,0,0);
+        axes.forEach(axis => color.add(new Color(colors[axis]).multiplyScalar(group.emotions[axis]/total)));
+        uniforms.emotionColors.value[slot].set(color.r,color.g,color.b,1);
+        uniforms.waveRadii.value[slot] = group.radius;
+        uniforms.waveBlend.value[slot].set(group.emotions.joy/total,group.emotions.sadness/total,group.emotions.anger/total,group.emotions.anxiety/total);
       });
     }
-    for (; index < 20; index++) uniforms.waves.value[index].set(0, 0, 0, -2);
+    for (; index < 40; index++) uniforms.waves.value[index].set(0, 0, 0, -2);
   });
   return <shaderMaterial ref={shaderRef} fragmentShader={Fluid+'\n'+EarthFrag} vertexShader={EarthVert} uniforms={uniforms}/>;
 };

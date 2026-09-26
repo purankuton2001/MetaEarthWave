@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:cloudflare": "CLOUDFLARE_BUILD=1 next build && CLOUDFLARE_BUILD=1 next export && node scripts/cloudflare-assets.cjs",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.8.9",

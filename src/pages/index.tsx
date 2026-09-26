@@ -1,3 +1,4 @@
+import {TrendModal} from '../components/TrendModal';
 import {ThemePanel} from '../components/ThemePanel';
 import reportWebVitals from '../reportWebVitals';
 import React, {useLayoutEffect, useRef, useState} from 'react';
@@ -81,6 +82,7 @@ const App: NextPage = () => {
           overflow: 'hidden'}}>
         <PointPannel />
         <ThemePanel />
+        <TrendModal />
         <MessagePannel modalState={modalState}/>
         <ModalPannel />
         <AuthorPannel />

@@ -25,6 +25,8 @@ export const TCanvas: VFC = () => {
       <EarthStateBridge value={earthState}>
       <OrbitControls
         attach="orbitControls"
+        autoRotate={earthState.trendWaves.length > 0 && !earthState.theme && !earthState.selectedTrend}
+        autoRotateSpeed={.65}
         enableZoom={false}
         enablePan={false}/>
       <Suspense fallback={null}>

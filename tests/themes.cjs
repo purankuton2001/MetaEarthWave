@@ -14,21 +14,34 @@ test('social samples deduplicate posts, text and authors and exclude old/future/
  assert.deepEqual(posts.map(p=>p.id),['123','128']);
  assert.equal(posts[0].url,'https://x.com/i/web/status/123');
 });
-test('sports mention groups never infer nationality and preserve mixed/other samples', () => {
- const theme={id:'test',title:'決勝',category:'スポーツ'};
- const posts=['日本代表が楽しみ','ブラジル代表が心配','日本代表とブラジル代表の試合'].map((text,i)=>({id:String(i),text,url:'https://x.com',createdAt:new Date().toISOString()}));
- const scores=posts.map(()=>({joy:.6,sadness:.1,anger:.2,anxiety:.4,empathy:.3}));
- const report=aggregateTheme(theme,posts,scores);
- assert.equal(report.count,3);assert.equal(report.groups.length,3);assert.equal(report.groups.find(g=>g.id==='topic').symbolic,true);assert.equal(report.groups.find(g=>g.id==='jp').emotions.joy,.6);
- const ordinary=aggregateTheme({...theme,category:'社会'},posts,scores);assert.equal(ordinary.groups.length,1);assert.equal(ordinary.groups[0].symbolic,true);
+const {decodeRegion} = require('../src/lib/regions.ts');
+const mood = (joy, anger) => ({joy,sadness:0,anger,anxiety:0,empathy:0});
+test('regional means differ, unknown posts are not placed in Tokyo, and sources exclude text', () => {
+ const posts = ['大阪にいる','London today','日本代表頑張れ','大阪も晴れ'].map((text,i)=>({id:String(i),text,url:'https://x.com/'+i,createdAt:new Date().toISOString()}));
+ const places = ['jp-kansai','GB',null,'jp-kansai'].map(regionId=>({regionId,confidence:.9,basis:regionId?'place':'unknown'}));
+ const report=aggregateTheme({id:'test'},posts,[mood(1,0),mood(0,1),mood(1,0),mood(.6,.2)],places);
+ assert.equal(report.count,4);assert.equal(report.unknownCount,1);assert.equal(report.groups.length,2);
+ assert.equal(report.groups[0].id,'jp-kansai');assert.equal(report.groups[0].emotions.joy,.8);
+ assert.equal(report.groups[1].emotions.anger,1);assert.notEqual(report.groups[0].longitude,report.groups[1].longitude);
+ assert.equal(report.targetCount,120);assert.equal(report.limited,true);
+ assert(!JSON.stringify(report).includes('大阪にいる'));
+ const unknown=aggregateTheme({id:'test'},[posts[2]],[mood(1,0)],[places[2]]);
+ assert.deepEqual(unknown.groups,[]);
 });
-test('named cities use topic locations; single posts and old reports do not change global flow', () => {
- const {themeFlowSpeed}=require('../src/lib/themes.ts');
- const now=Date.now(); const posts=[{id:'1',text:'東京の話題',url:'https://x.com',createdAt:new Date(now).toISOString()}];
- const score={joy:1,sadness:0,anger:0,anxiety:0,empathy:0};
- const report=aggregateTheme({id:'tokyo',title:'東京のイベント',category:'文化'},posts,[score],now);
- assert.equal(report.groups[0].symbolic,false);assert.match(report.groups[0].locationNote,/東京/);
+test('regional inference rejects weak, ambiguous language-only, and invalid answers', () => {
+ const decode=(id,prob,basis)=>decodeRegion({choice:id,probabilities:{[id]:prob}},{choice:basis});
+ assert.equal(decode('JP',.9,'language').regionId,'JP');
+ for(const id of ['jp-kanto','US','GB','BR','ES']) assert.equal(decode(id,.99,'language').regionId,null);
+ assert.equal(decode('GB',.69,'place').regionId,null);
+ assert.equal(decode('GB',.9,'place').regionId,'GB');
+ assert.equal(decode('JP',.9,'unknown').regionId,null);
+ assert.throws(()=>decode('fake',.9,'place'));
+ assert.throws(()=>decode('JP',NaN,'place'));
+});
+test('fewer than three located samples and stale reports cannot change global flow', () => {
+ const {themeFlowSpeed}=require('../src/lib/themes.ts'); const now=Date.now();
+ const report={count:120,updatedAt:new Date(now).toISOString(),groups:[{count:1,emotions:mood(1,0)}]};
  assert.equal(themeFlowSpeed(report,now),1);
- const more={...report,count:3,groups:report.groups.map(g=>({...g,count:3}))};
- assert(themeFlowSpeed(more,now)>1);assert.equal(themeFlowSpeed(more,now+1800001),1);
+ report.groups[0].count=3;assert(themeFlowSpeed(report,now)>1);
+ assert.equal(themeFlowSpeed(report,now+12*60*60*1000+1),1);
 });

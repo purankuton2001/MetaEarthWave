@@ -1,3 +1,4 @@
+import {TrendWaves} from './TrendWaves';
 import {EarthProps} from '../../types/util';
 import {useFrame, useThree} from '@react-three/fiber';
 import {useEffect, useRef} from 'react';
@@ -9,9 +10,9 @@ import {translateGeoCoords} from '../utils';
 
 export default function Earth({position, rotation, playing, dispatch}: EarthProps) {
   const ref = useRef<Mesh>();
-  const {theme, focusGroup, focusRevision} = useWebSocket();
+  const {theme, focusGroup, focusRevision, trendWaves} = useWebSocket();
   const {camera} = useThree();
-  const group = theme?.groups.find(item => item.id === focusGroup) || theme?.groups[0];
+  const group = theme?.groups.find(item => item.id === focusGroup) || theme?.groups[0] || (trendWaves[0] ? {latitude:15,longitude:0,id:'global-keywords'} : undefined);
   useEffect(() => {
     if (!ref.current) return;
     if (!group) {ref.current.rotation.set(0, rotation, 0); return;}
@@ -20,7 +21,7 @@ export default function Earth({position, rotation, playing, dispatch}: EarthProp
     ref.current.quaternion.setFromUnitVectors(origin, facing);
   }, [focusRevision, theme?.theme.id, group?.id, group?.latitude, group?.longitude]);
   useFrame(() => {
-    if (ref.current && playing && !theme) {
+    if (ref.current && playing && !theme && !trendWaves.length) {
       const time = new Date(Date.now());
       const second = time.getSeconds() + time.getMilliseconds()/1000;
       dispatch({type: 'SET_ROTATION', payload: 2 * Math.PI * second/60});
@@ -33,6 +34,7 @@ export default function Earth({position, rotation, playing, dispatch}: EarthProp
     <mesh name="emotion-earth" position={position} ref={ref}>
       <sphereGeometry />
       <EarthShader />
+      <TrendWaves />
     </mesh>
 
   );

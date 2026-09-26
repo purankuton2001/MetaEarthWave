@@ -12,7 +12,7 @@ export const AuthorCard: VFC<any> =
       const {width, height} = useWindowSize();
       return (
         <div className={'authorCardContainer'}>
-          {image && <Image className={'authorCardImage'}
+          {image && <Image unoptimized className={'authorCardImage'}
             src={image}
             width={width/4} height={height/4}
             objectFit={'contain'}/>

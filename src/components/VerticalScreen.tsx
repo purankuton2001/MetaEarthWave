@@ -17,7 +17,7 @@ export const VerticalScreen: VFC = () => {
   return (
     <div style={{padding: '12px',
       background: 'black', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-      <Image className={'verticalImage'} src={'/assets/images/MetaEarthWave.png'} width={width} height={'400'} objectFit={'contain'}/>
+      <Image unoptimized className={'verticalImage'} src={'/assets/images/MetaEarthWave.png'} width={width} height={'400'} objectFit={'contain'}/>
       <div className={'verticalTitle bigFont'}>
         MetaEarthWave
       </div>
