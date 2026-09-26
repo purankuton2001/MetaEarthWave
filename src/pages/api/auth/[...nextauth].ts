@@ -5,11 +5,11 @@ import TwitterProvider from 'next-auth/providers/twitter';
 export const authOptions = {
   providers: [
     TwitterProvider({
-      clientId: <string>process.env.NEXT_PUBLIC_TWITTER_ID,
-      clientSecret: <string>process.env.NEXT_PUBLIC_TWITTER_SECRET,
+      clientId: <string>process.env.TWITTER_CLIENT_ID,
+      clientSecret: <string>process.env.TWITTER_CLIENT_SECRET,
     }),
   ],
-  secret: process.env.NEXT_PUBLIC_AUTHSECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   session: {jwt: true},
   callbacks: {
     async jwt({token, account}: any) {

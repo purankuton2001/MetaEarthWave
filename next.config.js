@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  ...(process.env.CLOUDFLARE_BUILD ? {distDir: ".next-cloudflare", experimental: {cpus: 2}} : {}),
   images: {
+    ...(process.env.CLOUDFLARE_BUILD ? {loader: 'custom'} : {}),
     domains: ['pbs.twimg.com'],
   },
   eslint: {

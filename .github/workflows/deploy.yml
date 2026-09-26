@@ -1,0 +1,66 @@
+name: Test and deploy to Cloudflare
+
+# Pull requests: tests, type check and a Cloudflare build with a Workers dry run.
+# Pushes to main (and manual runs): the same checks, then `wrangler deploy` to meta-earth-wave.com.
+# Runtime secrets (TREG_TOKEN, TREG_ORG, TYPESAFE_API_KEY, NEXTAUTH_SECRET) live on the Worker and survive deploys.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || 'deploy-production' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      WRANGLER_VERSION: 4.129.1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Test
+        run: node --test tests/*.cjs
+
+      - name: Type check
+        run: yarn -s tsc --noEmit
+
+      - name: Build static assets for Workers
+        run: yarn build:cloudflare
+
+      - name: Workers dry run
+        run: npx --yes wrangler@${WRANGLER_VERSION} deploy --dry-run
+
+      - name: Deploy to Cloudflare
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: ${{ env.WRANGLER_VERSION }}
+          command: deploy --message "${{ github.sha }}"
+
+      - name: Smoke test production
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          build_id=$(cat .next-cloudflare/BUILD_ID)
+          for i in $(seq 1 10); do
+            if curl -fsS https://meta-earth-wave.com/ | grep -q "/_next/static/${build_id}/"; then echo "meta-earth-wave.com serves build ${build_id}"; break; fi
+            [ "$i" = 10 ] && { echo "::error::meta-earth-wave.com is not serving build ${build_id}"; exit 1; }
+            sleep 6
+          done
+          curl -fsS -o /dev/null -w "GET /api/themes -> %{http_code}\n" https://meta-earth-wave.com/api/themes

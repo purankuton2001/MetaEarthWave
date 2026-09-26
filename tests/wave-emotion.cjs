@@ -5,7 +5,7 @@ const {EventEmitter} = require('node:events');
 const https = require('node:https');
 const ts = require('typescript');
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {compilerOptions: {module: ts.ModuleKind.CommonJS, esModuleInterop: true}}).outputText, filename);
-const {axes, decodeEmotions} = require('../src/lib/waveEmotion.ts');
+const {axes, decodeEmotions, questions} = require('../src/lib/waveEmotion.ts');
 const handler = require('../src/pages/api/wave-emotion.ts').default;
 async function call(method, body) {
   const res = {code: 200, headers: {}, setHeader(k, v) {this.headers[k] = v;}, status(n) {this.code = n; return this;}, json(data) {this.data = data; return this;}};
@@ -26,6 +26,9 @@ test('Jev API validation, mixed scores and upstream failures', async () => {
       const sent = JSON.parse(body);
       assert.equal(sent.state.utterance, '嬉しいけれど不安');
       assert.deepEqual(Object.keys(sent.questions), axes);
+      assert.deepEqual(sent.state, {utterance: '嬉しいけれど不安'});
+      assert.deepEqual(sent.questions, questions());
+      assert(sent.questions.empathy.instructions.includes('読み手がこの投稿に共感しそうかは評価しない'));
       const response = new EventEmitter();
       response.statusCode = status;
       response.setEncoding = () => {};
