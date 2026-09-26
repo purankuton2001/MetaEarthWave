@@ -44,7 +44,10 @@ its text plays as a short lyric-video caption over the globe, using motion recip
 The post is split into up to four short cuts at punctuation. The dominant emotion picks the typeface,
 colour and motions: joy pops and bounces, sadness blurs in (sometimes vertically) and sinks, anger slices
 and glitches, anxiety types and jitters, empathy rises and sways. A ripple and leader line point at the wave
-while it faces the camera. Up to three captions queue; reduced-motion users get a plain fade.
+while it faces the camera.
+About half of captions (`ORBIT_CHANCE`) instead wrap the whole post (up to 28 characters) around the
+globe as a tilted ring of text that revolves once or so; the back half is mirrored and dimmed as it passes
+behind the globe, and the spin speed follows the emotion (anger fastest, sadness slowest). Up to three captions queue; reduced-motion users get a plain fade.
 Planner: `src/lib/waveCaption.ts`, renderer: `src/lib/waveCaptionDraw.ts`, overlay: `src/components/WaveCaption.tsx`.
 
 ## Validation

@@ -6,19 +6,19 @@ import {axes, Axis, Emotions, labels} from './waveEmotion';
 export type Enter = 'pop' | 'drop' | 'blur' | 'type' | 'slice' | 'rise';
 export type Hold = 'still' | 'jitter' | 'wave' | 'breathe' | 'glitch';
 export type Exit = 'fade' | 'sink' | 'glitch' | 'scatter' | 'lift';
-export type Layout = 'yoko' | 'tate';
+export type Layout = 'yoko' | 'tate' | 'orbit';
 export type CaptionCut = {text: string; start: number; dur: number; inDur: number; outDur: number; enter: Enter; hold: Hold; exit: Exit; layout: Layout; seed: number};
-export type CaptionPlan = {id: string; mood: Axis; font: string; color: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number};
+export type CaptionPlan = {id: string; mood: Axis; font: string; color: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number; spin: number};
 export type CaptionSource = {_id: string; text: string; score: number; emotions?: Emotions; cityName?: string};
 
-type Mood = {font: string; color: string; accent: string; enter: Enter[]; hold: Hold[]; exit: Exit[]; tate: number};
+type Mood = {font: string; color: string; accent: string; enter: Enter[]; hold: Hold[]; exit: Exit[]; tate: number; spin: number};
 // Each emotion gets a JIZURA-like "style": typeface, palette and the motions that suit it.
 export const moods: Record<Axis, Mood> = {
-  joy: {font: '"Mochiy Pop One", "M PLUS Rounded 1c", sans-serif', color: '#fff4d6', accent: '#f4cf78', enter: ['pop', 'drop'], hold: ['wave', 'breathe'], exit: ['lift', 'scatter'], tate: 0},
-  sadness: {font: '"Zen Old Mincho", serif', color: '#e4ecff', accent: '#709cff', enter: ['blur', 'type'], hold: ['breathe', 'still'], exit: ['sink', 'fade'], tate: 0.6},
-  anger: {font: '"Dela Gothic One", sans-serif', color: '#ffe6ec', accent: '#f57e96', enter: ['slice', 'drop'], hold: ['jitter', 'glitch'], exit: ['glitch', 'scatter'], tate: 0},
-  anxiety: {font: '"DotGothic16", monospace', color: '#efe6ff', accent: '#b898ff', enter: ['type', 'slice'], hold: ['jitter', 'glitch'], exit: ['glitch', 'fade'], tate: 0.2},
-  empathy: {font: '"M PLUS Rounded 1c", sans-serif', color: '#e2fbf6', accent: '#65dcc8', enter: ['rise', 'blur'], hold: ['wave', 'breathe'], exit: ['lift', 'fade'], tate: 0.3},
+  joy: {font: '"Mochiy Pop One", "M PLUS Rounded 1c", sans-serif', color: '#fff4d6', accent: '#f4cf78', enter: ['pop', 'drop'], hold: ['wave', 'breathe'], exit: ['lift', 'scatter'], tate: 0, spin: 1.1},
+  sadness: {font: '"Zen Old Mincho", serif', color: '#e4ecff', accent: '#709cff', enter: ['blur', 'type'], hold: ['breathe', 'still'], exit: ['sink', 'fade'], tate: 0.6, spin: 0.45},
+  anger: {font: '"Dela Gothic One", sans-serif', color: '#ffe6ec', accent: '#f57e96', enter: ['slice', 'drop'], hold: ['jitter', 'glitch'], exit: ['glitch', 'scatter'], tate: 0, spin: 1.6},
+  anxiety: {font: '"DotGothic16", monospace', color: '#efe6ff', accent: '#b898ff', enter: ['type', 'slice'], hold: ['jitter', 'glitch'], exit: ['glitch', 'fade'], tate: 0.2, spin: 0.9},
+  empathy: {font: '"M PLUS Rounded 1c", sans-serif', color: '#e2fbf6', accent: '#65dcc8', enter: ['rise', 'blur'], hold: ['wave', 'breathe'], exit: ['lift', 'fade'], tate: 0.3, spin: 0.7},
 };
 
 // Deterministic hash → 0..1 (JIZURA never uses Math.random at render time).
@@ -67,12 +67,32 @@ export function splitCuts(text: string, max = 12, limit = 4) {
   return merged;
 }
 
+// Share of captions that orbit the globe as a revolving ring instead of sitting beside the wave.
+export const ORBIT_CHANCE = 0.5;
+const ORBIT_MAX = 28;
+
 const pick = <T, >(list: T[], r: number) => list[Math.min(list.length - 1, Math.floor(r * list.length))];
 
 export function planCaption(source: CaptionSource): CaptionPlan | null {
   const pieces = splitCuts(source.text);
   if (!pieces.length) return null;
   const mood = dominant(source), style = moods[mood], seed = hashText(source._id + source.text);
+  const strength = source.emotions ? Math.round(source.emotions[mood] * 100) : Math.round(Math.abs(source.score) * 100);
+  const label = [source.cityName, `${labels[mood]} ${strength}`].filter(Boolean).join(' · ');
+  const base = {id: source._id, mood, font: style.font, color: style.color, accent: style.accent, label, seed, spin: style.spin};
+  if (hash(seed, 6) < ORBIT_CHANCE) {
+    // Orbit: the whole post becomes one ring of text revolving around the globe.
+    // Band slicing is screen-space, so the slice entrance is swapped for drop on the ring.
+    const chars = Array.from(pieces.join('　'));
+    const text = chars.length > ORBIT_MAX ? chars.slice(0, ORBIT_MAX - 1).join('') + '…' : chars.join('');
+    const dur = Math.max(4, Math.min(6, 3.4 + Array.from(text).length * 0.09));
+    const enter = pick(style.enter, hash(seed, 0, 1));
+    const cut: CaptionCut = {
+      text, start: 0.35, dur, inDur: 0.9, outDur: 0.7, enter: enter === 'slice' ? 'drop' : enter,
+      hold: pick(style.hold, hash(seed, 0, 2)), exit: pick(style.exit, hash(seed, 0, 3)), layout: 'orbit', seed: hash(seed, 0, 5) * 1e6,
+    };
+    return {...base, cuts: [cut], total: cut.start + dur + 0.6};
+  }
   // Vertical writing (縦書き) is chosen per caption so the block doesn't jump between cuts.
   const tate = pieces.every(text => Array.from(text).length <= 8) && hash(seed, 4) < style.tate;
   let start = 0.35; // leave room for the ripple ring to bloom first
@@ -88,9 +108,7 @@ export function planCaption(source: CaptionSource): CaptionPlan | null {
     start += dur - 0.12; // slight overlap, like cut transitions
     return cut;
   });
-  const strength = source.emotions ? Math.round(source.emotions[mood] * 100) : Math.round(Math.abs(source.score) * 100);
-  const label = [source.cityName, `${labels[mood]} ${strength}`].filter(Boolean).join(' · ');
-  return {id: source._id, mood, font: style.font, color: style.color, accent: style.accent, label, cuts, total: start + 0.6, seed};
+  return {...base, cuts, total: start + 0.6};
 }
 
 // Easing — same curves as JIZURA's J.E.

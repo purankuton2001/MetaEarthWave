@@ -45,3 +45,17 @@ test('glyph states: hidden before entrance, settled mid-cut, gone after', () => 
   const reduced = cutState({...cut, enter: 'drop'}, 0.1, 60, 2, true);
   assert.ok(reduced.glyphs.every(g => g.dy === 0 && g.rot === 0));
 });
+
+test('orbit captions carry the whole post as one ring, capped in length', () => {
+  const {ORBIT_CHANCE} = require('../src/lib/waveCaption.ts');
+  const plans = Array.from({length: 200}, (_, i) => planCaption({_id: `p${i}`, text: '一二三四五六七八九十、'.repeat(5), score: -0.9}));
+  const orbit = plans.filter(plan => plan.cuts[0].layout === 'orbit');
+  assert.ok(Math.abs(orbit.length / plans.length - ORBIT_CHANCE) < 0.15);
+  for (const plan of orbit) {
+    assert.equal(plan.cuts.length, 1);
+    assert.ok(Array.from(plan.cuts[0].text).length <= 28 && plan.cuts[0].text.endsWith('…'));
+    assert.notEqual(plan.cuts[0].enter, 'slice');
+    assert.ok(plan.spin > 0 && plan.cuts[0].start + plan.cuts[0].dur <= plan.total);
+  }
+  assert.ok(plans.some(plan => plan.cuts[0].layout !== 'orbit'));
+});

@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState, VFC} from 'react';
 import {useFrame, useThree} from '@react-three/fiber';
-import {Vector3} from 'three';
+import {PerspectiveCamera, Vector3} from 'three';
 import {useWebSocket} from '../context/WebSocket';
 import {translateGeoCoords} from '../utils';
 import {CaptionPlan, planCaption} from '../lib/waveCaption';
@@ -9,13 +9,23 @@ import {drawCaption} from '../lib/waveCaptionDraw';
 // Where the currently captioned wave sits on screen. Written by the tracker inside the
 // three.js canvas, read by the 2D overlay on top of it.
 const anchor = {loc: null as number[] | null, x: 0, y: 0, visible: false, ready: false};
+const globe = {x: 0, y: 0, r: 0, ready: false};
 
 export const WaveAnchorTracker: VFC = () => {
   const {scene, camera, size} = useThree();
   const world = useRef(new Vector3()), toCamera = useRef(new Vector3());
   useFrame(() => {
     const earth = scene.getObjectByName('emotion-earth');
-    if (!anchor.loc || !earth) {anchor.ready = false; return;}
+    if (!earth) {anchor.ready = globe.ready = false; return;}
+    // Globe silhouette on screen: a unit sphere at distance d spans asin(1/d) of the vertical field of view.
+    const centre = earth.getWorldPosition(world.current), distance = camera.position.distanceTo(centre);
+    const fov = (camera as PerspectiveCamera).fov ?? 75;
+    centre.project(camera);
+    globe.x = (centre.x + 1) / 2 * size.width;
+    globe.y = (1 - centre.y) / 2 * size.height;
+    globe.r = Math.tan(Math.asin(Math.min(1, 1 / distance))) / Math.tan(fov * Math.PI / 360) * size.height / 2;
+    globe.ready = true;
+    if (!anchor.loc) {anchor.ready = false; return;}
     const point = earth.localToWorld(world.current.copy(translateGeoCoords(anchor.loc[0], anchor.loc[1], 1)));
     // Facing the camera when the surface normal points toward it (the globe is centered at the origin).
     anchor.visible = point.dot(toCamera.current.copy(camera.position).sub(point)) > 0;
@@ -70,7 +80,7 @@ export const WaveCaption: VFC = () => {
       if (anchor.loc !== current.loc) {anchor.loc = current.loc; started = time;}
       const t = (time - started) / 1000;
       if (t > current.plan.total) {queue.current.shift(); anchor.loc = null; return;}
-      drawCaption(ctx, current.plan, t, W, H, reduced, anchor.ready && anchor.visible ? anchor : null);
+      drawCaption(ctx, current.plan, t, W, H, reduced, anchor.ready && anchor.visible ? anchor : null, globe.ready ? globe : null);
     };
     frame = requestAnimationFrame(loop);
     return () => {cancelAnimationFrame(frame); anchor.loc = null;};
