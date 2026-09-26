@@ -2,9 +2,9 @@
 
 ## JIZURA
 
-The wave caption motion recipes in `src/lib/waveCaption.ts` and `src/lib/waveCaptionDraw.ts`
-(pop / drop / blur / type / slice entrances, jitter / wave / breathe / glitch holds, glitch / scatter exits,
-bounce and outBack easing) are ported from JIZURA: https://github.com/852wa/JIZURA
+The wave caption structure in `src/lib/waveCaption.ts` and `src/lib/waveCaptionDraw.ts`
+(lyric cuts with per-glyph staggered enter / hold / exit, blur-in entrance, easing curves and hash-based
+determinism) is ported from JIZURA: https://github.com/852wa/JIZURA
 
 ```
 MIT License

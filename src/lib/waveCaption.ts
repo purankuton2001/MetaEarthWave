@@ -1,33 +1,35 @@
 // Lyric-motion captions for new waves.
-// Motion recipes (pop / drop / blur / type / slice / glitch, jitter / wave / breathe, bounce easing,
-// hash-based determinism) are ported from JIZURA (https://github.com/852wa/JIZURA, MIT, (c) 2026 hakoniwa).
-import {axes, Axis, Emotions, labels} from './waveEmotion';
+// The cut structure (short lyric cuts, per-glyph staggered enter / hold / exit, blur-in, easing curves,
+// hash-based determinism) is ported from JIZURA (https://github.com/852wa/JIZURA, MIT, (c) 2026 hakoniwa).
+// The motions themselves are tuned to the globe's own wave language: soft, fluid and slow — no bounce,
+// rotation, glitch or pop, so the caption reads as part of the water rather than a telop laid on top.
+import {axes, Axis, colors, Emotions, labels} from './waveEmotion';
 
-export type Enter = 'pop' | 'drop' | 'blur' | 'type' | 'slice' | 'rise';
-export type Hold = 'still' | 'jitter' | 'wave' | 'breathe' | 'glitch';
-export type Exit = 'fade' | 'sink' | 'glitch' | 'scatter' | 'lift';
+export type Enter = 'focus' | 'rise' | 'swell' | 'settle' | 'gust';
+export type Hold = 'still' | 'float' | 'sway' | 'swirl' | 'tremor';
+export type Exit = 'dissolve' | 'ascend' | 'descend' | 'disperse';
 export type Layout = 'yoko' | 'tate' | 'orbit';
 export type CaptionCut = {text: string; start: number; dur: number; inDur: number; outDur: number; enter: Enter; hold: Hold; exit: Exit; layout: Layout; seed: number};
 export type CaptionPlan = {id: string; mood: Axis; font: string; color: string; accent: string; label: string; cuts: CaptionCut[]; total: number; seed: number; spin: number; look: Look};
-export type Particles = 'sparkle' | 'rain' | 'ember' | 'noise';
-// Text styling, after JIZURA's text items: gradient fill, chromatic ghosts, extrusion, outline-only type.
-export type Look = {fill: [string, string]; chroma: number; extrude: number; extrudeColor: string; outline: boolean; shimmer: boolean; particles: Particles};
+// Motes drift like foam around the text; the direction follows the emotion's wave (joy lifts, sadness sinks…).
+export type Motes = 'up' | 'down' | 'swirl' | 'drift';
+// Text styling: white type washed with the emotion's colour, a soft glow and a quiet shadow for legibility.
+export type Look = {tint: number; glow: number; motes: Motes};
 export type CaptionSource = {_id: string; text: string; score: number; emotions?: Emotions; cityName?: string};
 
-type Mood = {font: string; accent: string; enter: Enter[]; hold: Hold[]; exit: Exit[]; tate: number; spin: number;
-  palettes: [string, string][]; chroma: number[]; extrude: number[]; extrudeColor: string; outline: number; shimmer: boolean; particles: Particles};
-// Each emotion gets a JIZURA-like "style": typeface, palette and the motions that suit it.
+// One serif family for every emotion (pairs with the EB Garamond UI); emotions differ by motion, tempo and colour.
+export const CAPTION_FONT = '"Zen Old Mincho", "EB Garamond", serif';
+export const CAPTION_WEIGHT = 600;
+
+type Mood = {enter: Enter[]; hold: Hold[]; exit: Exit[]; tate: number; spin: number; tempo: number; tint: [number, number]; motes: Motes};
+// Mirrors the globe shader (WAVES.md): joy lifts, sadness sinks, anger swirls, anxiety adds small irregular
+// movements, empathy mixes gently. `tempo` scales cut length (higher = slower, more lingering).
 export const moods: Record<Axis, Mood> = {
-  joy: {font: '"Mochiy Pop One", "M PLUS Rounded 1c", sans-serif', accent: '#f4cf78', enter: ['pop', 'drop'], hold: ['wave', 'breathe'], exit: ['lift', 'scatter'], tate: 0, spin: 1.1,
-    palettes: [['#fff6b0', '#ff4fa3'], ['#fff1c2', '#ff8a1f'], ['#ffffff', '#ff5ccd']], chroma: [0], extrude: [0, 5], extrudeColor: '#b8437a', outline: 0, shimmer: true, particles: 'sparkle'},
-  sadness: {font: '"Zen Old Mincho", serif', accent: '#709cff', enter: ['blur', 'type'], hold: ['breathe', 'still'], exit: ['sink', 'fade'], tate: 0.6, spin: 0.45,
-    palettes: [['#e8f0ff', '#4f7dff'], ['#f0eaff', '#7a6bff']], chroma: [0], extrude: [0], extrudeColor: '#23346b', outline: 0.35, shimmer: false, particles: 'rain'},
-  anger: {font: '"Dela Gothic One", sans-serif', accent: '#f57e96', enter: ['slice', 'drop'], hold: ['jitter', 'glitch'], exit: ['glitch', 'scatter'], tate: 0, spin: 1.6,
-    palettes: [['#ffe066', '#ff1f3d'], ['#ffc2a8', '#e8002a']], chroma: [1, 1.4], extrude: [4, 6], extrudeColor: '#4d0718', outline: 0.15, shimmer: false, particles: 'ember'},
-  anxiety: {font: '"DotGothic16", monospace', accent: '#b898ff', enter: ['type', 'slice'], hold: ['jitter', 'glitch'], exit: ['glitch', 'fade'], tate: 0.2, spin: 0.9,
-    palettes: [['#e0fffb', '#8a5cff'], ['#ffffff', '#b14dff']], chroma: [0.8, 1.2], extrude: [0], extrudeColor: '#2e1a5c', outline: 0.5, shimmer: false, particles: 'noise'},
-  empathy: {font: '"M PLUS Rounded 1c", sans-serif', accent: '#65dcc8', enter: ['rise', 'blur'], hold: ['wave', 'breathe'], exit: ['lift', 'fade'], tate: 0.3, spin: 0.7,
-    palettes: [['#e6fff9', '#12bfa2'], ['#ffe9f3', '#1fb8a8'], ['#f4f2ff', '#6f86ff']], chroma: [0], extrude: [0, 3], extrudeColor: '#1b5f58', outline: 0.2, shimmer: true, particles: 'sparkle'},
+  joy: {enter: ['rise', 'swell'], hold: ['float'], exit: ['ascend'], tate: 0, spin: 0.5, tempo: 1, tint: [0.16, 0.26], motes: 'up'},
+  sadness: {enter: ['settle', 'focus'], hold: ['still', 'float'], exit: ['descend', 'dissolve'], tate: 0.6, spin: 0.26, tempo: 1.2, tint: [0.18, 0.28], motes: 'down'},
+  anger: {enter: ['gust'], hold: ['swirl'], exit: ['disperse'], tate: 0, spin: 0.75, tempo: 0.9, tint: [0.2, 0.3], motes: 'swirl'},
+  anxiety: {enter: ['focus'], hold: ['tremor'], exit: ['dissolve'], tate: 0.2, spin: 0.42, tempo: 1.05, tint: [0.18, 0.28], motes: 'drift'},
+  empathy: {enter: ['swell', 'focus'], hold: ['sway'], exit: ['dissolve', 'ascend'], tate: 0.3, spin: 0.38, tempo: 1.1, tint: [0.16, 0.26], motes: 'drift'},
 };
 
 // Deterministic hash → 0..1 (JIZURA never uses Math.random at render time).
@@ -54,12 +56,14 @@ export function splitCuts(text: string, max = 12, limit = 4) {
   const chars = Array.from(text.replace(/\s+/g, ' ').trim());
   const out: string[] = [];
   let cur = '';
-  for (const ch of chars) {
-    if (!cur && ch === ' ') continue;
+  chars.forEach((ch, i) => {
+    if (!cur && ch === ' ') return;
     cur += ch;
-    if (breakAfter.test(ch) && Array.from(cur.trim()).length >= 3) {out.push(cur.trim()); cur = '';}
+    // Keep runs of punctuation (！？, 。」) together so no cut starts with a stray mark.
+    const next = chars[i + 1];
+    if (breakAfter.test(ch) && !(next && next !== ' ' && breakAfter.test(next)) && Array.from(cur.trim()).length >= 3) {out.push(cur.trim()); cur = '';}
     else if (Array.from(cur).length >= max) {out.push(cur); cur = '';}
-  }
+  });
   if (cur.trim()) out.push(cur.trim());
   // Merge tiny tails into the previous cut when it still fits.
   const merged = out.reduce<string[]>((acc, cut) => {
@@ -76,9 +80,9 @@ export function splitCuts(text: string, max = 12, limit = 4) {
   return merged;
 }
 
-// Share of captions that orbit the globe as a revolving ring instead of sitting beside the wave.
+// Share of short captions (≤ ORBIT_MAX characters) that orbit the globe as a revolving ring instead of sitting beside the wave.
 export const ORBIT_CHANCE = 0.5;
-const ORBIT_MAX = 28;
+export const ORBIT_MAX = 28;
 
 const pick = <T, >(list: T[], r: number) => list[Math.min(list.length - 1, Math.floor(r * list.length))];
 
@@ -88,105 +92,93 @@ export function planCaption(source: CaptionSource): CaptionPlan | null {
   const mood = dominant(source), style = moods[mood], seed = hashText(source._id + source.text);
   const strength = source.emotions ? Math.round(source.emotions[mood] * 100) : Math.round(Math.abs(source.score) * 100);
   const label = [source.cityName, `${labels[mood]} ${strength}`].filter(Boolean).join(' · ');
-  const look: Look = {
-    fill: pick(style.palettes, hash(seed, 7)), chroma: pick(style.chroma, hash(seed, 8)), extrude: pick(style.extrude, hash(seed, 9)),
-    extrudeColor: style.extrudeColor, outline: hash(seed, 10) < style.outline, shimmer: style.shimmer, particles: style.particles,
-  };
-  const base = {id: source._id, mood, font: style.font, color: look.fill[0], accent: style.accent, label, seed, spin: style.spin, look};
-  if (hash(seed, 6) < ORBIT_CHANCE) {
-    // Orbit: the whole post becomes one ring of text revolving around the globe.
-    // Band slicing is screen-space, so the slice entrance is swapped for drop on the ring.
-    const chars = Array.from(pieces.join('　'));
-    const text = chars.length > ORBIT_MAX ? chars.slice(0, ORBIT_MAX - 1).join('') + '…' : chars.join('');
-    const dur = Math.max(4, Math.min(6, 3.4 + Array.from(text).length * 0.09));
-    const enter = pick(style.enter, hash(seed, 0, 1));
+  const look: Look = {tint: style.tint[0] + (style.tint[1] - style.tint[0]) * hash(seed, 7), glow: 0.32 + 0.14 * hash(seed, 8), motes: style.motes};
+  const base = {id: source._id, mood, font: CAPTION_FONT, color: '#ffffff', accent: colors[mood], label, seed, spin: style.spin, look};
+  const ring = Array.from(pieces.join('　'));
+  // Orbit only when the whole post fits on the ring — a truncated ring reads as broken.
+  if (ring.length <= ORBIT_MAX && hash(seed, 6) < ORBIT_CHANCE) {
+    // Orbit: the whole post becomes one ring of text revolving slowly around the globe.
+    const text = ring.join('');
+    const dur = Math.max(4.5, Math.min(7, 3.8 + Array.from(text).length * 0.1)) * style.tempo;
     const cut: CaptionCut = {
-      text, start: 0.35, dur, inDur: 0.9, outDur: 0.7, enter: enter === 'slice' ? 'drop' : enter,
+      text, start: 0.35, dur, inDur: 1.4, outDur: 1.1, enter: pick(style.enter, hash(seed, 0, 1)),
       hold: pick(style.hold, hash(seed, 0, 2)), exit: pick(style.exit, hash(seed, 0, 3)), layout: 'orbit', seed: hash(seed, 0, 5) * 1e6,
     };
-    return {...base, cuts: [cut], total: cut.start + dur + 0.6};
+    return {...base, cuts: [cut], total: cut.start + dur + 0.8};
   }
   // Vertical writing (縦書き) is chosen per caption so the block doesn't jump between cuts.
   const tate = pieces.every(text => Array.from(text).length <= 8) && hash(seed, 4) < style.tate;
   let start = 0.35; // leave room for the ripple ring to bloom first
   const cuts = pieces.map((text, index): CaptionCut => {
     const n = Array.from(text).length;
-    const dur = Math.max(1.3, Math.min(2.8, 0.9 + n * 0.14));
+    const dur = Math.max(1.7, Math.min(3.4, 1.2 + n * 0.16)) * style.tempo;
     const cut: CaptionCut = {
-      text, start, dur, inDur: Math.min(0.6, dur * 0.35), outDur: Math.min(0.45, dur * 0.25),
+      text, start, dur, inDur: Math.min(0.95, dur * 0.4), outDur: Math.min(0.75, dur * 0.3),
       enter: pick(style.enter, hash(seed, index, 1)), hold: pick(style.hold, hash(seed, index, 2)),
-      exit: index === pieces.length - 1 ? pick(style.exit, hash(seed, index, 3)) : 'fade',
+      exit: index === pieces.length - 1 ? pick(style.exit, hash(seed, index, 3)) : 'dissolve',
       layout: tate ? 'tate' : 'yoko', seed: hash(seed, index, 5) * 1e6,
     };
-    start += dur - 0.12; // slight overlap, like cut transitions
+    start += dur - 0.3; // cuts cross-dissolve into each other
     return cut;
   });
-  return {...base, cuts, total: start + 0.6};
+  return {...base, cuts, total: start + 0.3 + 0.8};
 }
 
-// Easing — same curves as JIZURA's J.E.
+// Easing — curves after JIZURA's J.E., minus the bouncy ones.
 export const clamp = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 export const ease = {
   outCubic: (x: number) => 1 - Math.pow(1 - clamp(x), 3),
   inCubic: (x: number) => Math.pow(clamp(x), 3),
+  outQuint: (x: number) => 1 - Math.pow(1 - clamp(x), 5),
   outExpo: (x: number) => (x = clamp(x)) === 1 ? 1 : 1 - Math.pow(2, -10 * x),
+  inOutSine: (x: number) => -(Math.cos(Math.PI * clamp(x)) - 1) / 2,
   inOutExpo: (x: number) => {x = clamp(x); return x === 0 || x === 1 ? x : x < 0.5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;},
-  outBack: (x: number, s = 1.9) => {x = clamp(x); const c = s + 1; return 1 + c * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);},
-  bounce: (x: number) => {
-    const n1 = 7.5625, d1 = 2.75;
-    if (x < 1 / d1) return n1 * x * x;
-    if (x < 2 / d1) return n1 * (x -= 1.5 / d1) * x + 0.75;
-    if (x < 2.5 / d1) return n1 * (x -= 2.25 / d1) * x + 0.9375;
-    return n1 * (x -= 2.625 / d1) * x + 0.984375;
-  },
 };
 
-export type Glyph = {dx: number; dy: number; rot: number; s: number; sx: number; sy: number; a: number; blur: number; hide: boolean};
-export type CutState = {visible: boolean; glyphs: Glyph[]; bands: number[] | null; cursor: number; pIn: number; pOut: number};
+export type Glyph = {dx: number; dy: number; a: number; blur: number};
+export type CutState = {visible: boolean; glyphs: Glyph[]; pIn: number; pOut: number};
 
-// Per-glyph transforms for a cut at local time lt. `size` is the font size in px, `step` a ≤24 Hz integer clock.
-export function cutState(cut: CaptionCut, lt: number, size: number, step: number, reduced = false): CutState {
+// Per-glyph offsets for a cut at local time lt. `size` is the font size in px. Glyphs never rotate or scale:
+// they drift, blur and fade like light on water. `side` (-1/1) is the direction a gust comes from.
+export function cutState(cut: CaptionCut, lt: number, size: number, reduced = false, side = 1): CutState {
   const n = Array.from(cut.text).length;
   const visible = lt >= 0 && lt <= cut.dur;
   const pIn = clamp(lt / cut.inDur), pOut = clamp((lt - (cut.dur - cut.outDur)) / cut.outDur);
-  const glyphs: Glyph[] = Array.from({length: n}, () => ({dx: 0, dy: 0, rot: 0, s: 1, sx: 1, sy: 1, a: 1, blur: 0, hide: false}));
-  let bands: number[] | null = null, cursor = -1;
-  if (!visible) return {visible, glyphs, bands, cursor, pIn, pOut};
+  const glyphs: Glyph[] = Array.from({length: n}, () => ({dx: 0, dy: 0, a: 1, blur: 0}));
+  if (!visible) return {visible, glyphs, pIn, pOut};
   if (reduced) {
     glyphs.forEach(g => {g.a = Math.min(pIn, 1 - pOut);});
-    return {visible, glyphs, bands, cursor, pIn, pOut};
+    return {visible, glyphs, pIn, pOut};
   }
   const seed = cut.seed, p = pIn;
   glyphs.forEach((g, i) => {
     const d = n > 1 ? i / (n - 1) : 0;
+    // Entrance: each glyph has its own window inside pIn so the text arrives as a travelling wave.
+    const win = (spread: number) => clamp((p - d * spread) / (1 - spread));
     switch (cut.enter) {
-      case 'pop': {const q = clamp((p - d * 0.45) / 0.55); if (q <= 0) g.hide = true; g.s = ease.outBack(q, 2.6); g.rot = (1 - ease.outCubic(q)) * (hash(seed, i, 9) * 2 - 1) * 28; break;}
-      case 'drop': {const q = clamp((p - hash(seed, i, 4) * 0.5) / 0.5); if (q <= 0) g.hide = true; g.dy = -(1 - ease.bounce(q)) * size * 2.4; g.sy = 1 + (1 - q) * 0.5; g.sx = 1 - (1 - q) * 0.2; break;}
-      case 'blur': {const e = ease.outCubic(p); g.blur = (1 - e) * 18; g.a = Math.pow(e, 0.7); g.dx = (i - (n - 1) / 2) * size * 0.5 * (1 - e); break;}
-      case 'type': if (i >= Math.floor(p * (n + 0.999))) g.hide = true; cursor = p < 1 ? Math.floor(p * (n + 0.999)) : -1; break;
-      case 'rise': {const q = clamp((p - d * 0.35) / 0.65), e = ease.outCubic(q); g.dy = (1 - e) * size * 0.9; g.a = e; break;}
-      case 'slice': break;
+      case 'focus': {const q = clamp((p - hash(seed, i, 4) * 0.35) / 0.65), e = ease.outCubic(q); g.blur = (1 - e) * size * 0.28; g.a = e; break;}
+      case 'rise': {const e = ease.outCubic(win(0.4)); g.dy = (1 - e) * size * 0.55; g.blur = (1 - e) * size * 0.12; g.a = e; break;}
+      case 'swell': {const q = win(0.5), e = ease.inOutSine(q); g.dy = Math.sin((1 - q) * Math.PI) * size * 0.22 + (1 - e) * size * 0.25; g.blur = (1 - e) * size * 0.14; g.a = e; break;}
+      case 'settle': {const e = ease.outCubic(win(0.3)); g.dy = -(1 - e) * size * 0.35; g.blur = (1 - e) * size * 0.22; g.a = e; break;}
+      case 'gust': {const e = ease.outCubic(win(0.35)); g.dx = -side * (1 - e) * size * 1.1; g.dy = Math.sin(e * Math.PI) * size * 0.08; g.blur = (1 - e) * size * 0.2; g.a = ease.outCubic(win(0.35)); break;}
     }
+    // Hold: slow, continuous motion (sub-pixel noise, never stepped).
     switch (cut.hold) {
-      case 'jitter': {const a = size * 0.03; g.dx += (hash(seed, step, i, 1) * 2 - 1) * a; g.dy += (hash(seed, step, i, 2) * 2 - 1) * a; g.rot += (hash(seed, step, i, 3) * 2 - 1) * 4; break;}
-      case 'wave': g.dy += Math.sin(lt * 5 + i * 0.75) * size * 0.07; g.rot += Math.cos(lt * 5 + i * 0.75) * 5; break;
-      case 'breathe': g.s *= 1 + 0.035 * Math.sin(lt * Math.PI * 1.8); break;
+      case 'float': g.dy += Math.sin(lt * 1.7 + i * 0.55) * size * 0.045; break;
+      case 'sway': g.dx += Math.sin(lt * 1.1 + i * 0.35) * size * 0.03; g.dy += Math.cos(lt * 1.1 + i * 0.35) * size * 0.03; break;
+      case 'swirl': {const ang = lt * 2.2 + i * 0.9; g.dx += Math.cos(ang) * size * 0.035; g.dy += Math.sin(ang) * size * 0.035; break;}
+      case 'tremor': {const k = hash(seed, i, 6) * 6.28; g.dx += (Math.sin(lt * 3.1 + k) + Math.sin(lt * 5.3 + k * 1.7) * 0.5) * size * 0.016; g.dy += (Math.sin(lt * 2.7 + k * 2.3) + Math.sin(lt * 6.1 + k) * 0.4) * size * 0.016; break;}
       default: break;
     }
     if (pOut > 0) {
-      const e = ease.inCubic(pOut);
+      const e = ease.inOutSine(pOut);
       switch (cut.exit) {
-        case 'fade': g.a *= 1 - pOut; break;
-        case 'sink': g.dy += e * size * 1.2; g.blur += e * 10; g.a *= 1 - pOut; break;
-        case 'lift': {const q = clamp((pOut - d * 0.3) / 0.7); g.dy -= ease.inCubic(q) * size * 1.8; g.a *= 1 - q; break;}
-        case 'scatter': {const ang = hash(seed, i, 12) * Math.PI * 2, dist = size * (2 + hash(seed, i, 13) * 3); g.dx += Math.cos(ang) * dist * e; g.dy += Math.sin(ang) * dist * e; g.rot += (hash(seed, i, 14) * 2 - 1) * 260 * e; g.a *= 1 - e * e; break;}
-        case 'glitch': if (pOut > 0.55) g.a *= (hash(seed, step, 63) < 0.5 ? 0.15 : 1) * (1 - clamp((pOut - 0.8) / 0.2)); break;
+        case 'dissolve': g.blur += e * size * 0.25; g.a *= 1 - e; break;
+        case 'ascend': {const q = ease.inOutSine(clamp((pOut - d * 0.3) / 0.7)); g.dy -= q * size * 0.6; g.blur += q * size * 0.15; g.a *= 1 - q; break;}
+        case 'descend': g.dy += e * size * 0.5; g.blur += e * size * 0.22; g.a *= 1 - e; break;
+        case 'disperse': {const ang = hash(seed, i, 12) * Math.PI * 2, dist = size * (0.5 + hash(seed, i, 13) * 0.6); g.dx += Math.cos(ang) * dist * e; g.dy += Math.sin(ang) * dist * e; g.blur += e * size * 0.2; g.a *= 1 - e; break;}
       }
     }
   });
-  // Horizontal band offsets (7 slices): slice entrance, glitch hold / exit.
-  if (cut.enter === 'slice' && p < 1) bands = Array.from({length: 7}, (_, i) => (1 - ease.outExpo(p * 1.2 - 0.05 * i)) * (i % 2 ? 1 : -1) * size * 12);
-  else if (cut.exit === 'glitch' && pOut > 0) bands = Array.from({length: 7}, (_, i) => hash(seed, step, i, 61) < 0.75 ? (hash(seed, step, i, 62) * 2 - 1) * size * (0.3 + pOut * 2.2) : 0);
-  else if (cut.hold === 'glitch' && hash(seed, step, 77) < 0.22) bands = Array.from({length: 7}, (_, i) => hash(seed, step, i, 5) < 0.6 ? (hash(seed, step, i, 6) * 2 - 1) * size * 0.35 : 0);
-  return {visible, glyphs, bands, cursor, pIn, pOut};
+  return {visible, glyphs, pIn, pOut};
 }
