@@ -7,6 +7,7 @@ import Earth from './Earth';
 import {Euler, Vector3} from 'three';
 import {NoiseShader} from '../../shader/NoiseShader';
 import {EarthRotationContext} from '../context/useEarthRotation';
+import {WaveAnchorTracker} from './WaveCaption';
 
 
 export const TCanvas: VFC = () => {
@@ -38,6 +39,7 @@ export const TCanvas: VFC = () => {
           <NoiseShader />
         </mesh>
       </Suspense>
+      <WaveAnchorTracker />
       <Effect />
       </EarthStateBridge>
     </Canvas>

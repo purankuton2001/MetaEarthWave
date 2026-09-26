@@ -36,8 +36,19 @@ change the entire globe or background. Posts expire after 60 seconds, fading
 between seconds 42 and 60. The 20 available visual layers prioritize newer posts
 and never split a blend when capacity is exhausted.
 
+## Wave captions
+
+When a new wave appears (a local Jev post, or a new post from the shared feed that is under 10 seconds old),
+its text plays as a short lyric-video caption over the globe, using motion recipes ported from
+[JIZURA](https://github.com/852wa/JIZURA) (MIT, see `THIRD_PARTY_NOTICES.md`).
+The post is split into up to four short cuts at punctuation. The dominant emotion picks the typeface,
+colour and motions: joy pops and bounces, sadness blurs in (sometimes vertically) and sinks, anger slices
+and glitches, anxiety types and jitters, empathy rises and sways. A ripple and leader line point at the wave
+while it faces the camera. Up to three captions queue; reduced-motion users get a plain fade.
+Planner: `src/lib/waveCaption.ts`, renderer: `src/lib/waveCaptionDraw.ts`, overlay: `src/components/WaveCaption.tsx`.
+
 ## Validation
 
-`node --test tests/wave-emotion.cjs`
+`node --test tests/wave-emotion.cjs tests/wave-caption.cjs`
 `yarn tsc --noEmit`
 `yarn build`

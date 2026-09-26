@@ -14,6 +14,7 @@ import {useLanguage} from '../hooks/useLanguage';
 import {screenOrientation} from '../utils/translateText';
 import {TwitterLoginButton} from '../components/TwitterLoginButton';
 import {AuthorPannel} from '../components/AuthorPannel';
+import {WaveCaption} from '../components/WaveCaption';
 
 export type ModalState = null | string;
 
@@ -83,6 +84,7 @@ const App: NextPage = () => {
         <ModalPannel />
         <AuthorPannel />
         <TCanvas />
+        <WaveCaption />
         <TwitterLoginButton
           style={{position: 'absolute',
             bottom: '10%',
