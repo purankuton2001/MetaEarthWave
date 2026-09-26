@@ -41,7 +41,7 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
               // console.log(playing);
             }}>
               <div className={'messageHeader'}>
-                <Image
+                <Image unoptimized
                   className={'profileImage'}
                   src={tweet.account.profileImage}
                   width={32}
@@ -52,7 +52,7 @@ export const MessagePannel: VFC<ModalPannelProps> = ({modalState}) => {
               </div>
               <div className={'messageText'}>{tweet.text}</div>
               {tweet.emotions && <div style={{fontSize: 12, marginTop: 8, color: 'white'}}>
-                <div>{tweet.cityName} · Jev 推定 · この画面のみ</div>
+                <div>{tweet.themeTitle && `「${tweet.themeTitle}」 · `}{tweet.cityName} · この画面のみ</div>
                 {axes.map(axis => <label key={axis} style={{color: colors[axis], display: 'block', marginTop: 10}} onClick={event => event.stopPropagation()}>
                   {labels[axis]} {Math.round(tweet.emotions![axis] * 100)}
                 </label>)}

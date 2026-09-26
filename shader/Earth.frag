@@ -3,22 +3,24 @@ varying vec2 vUv;
 uniform float iTime;
 uniform float waveTime;
 uniform sampler2D earthTexture;
-uniform vec4 waves[20];
-uniform vec4 emotionColors[20];
-uniform float waveKinds[20];
-uniform float waveAges[20];
-uniform float waveTravelAges[20];
-uniform float waveWeights[20];
+uniform vec4 waves[40];
+uniform vec4 emotionColors[40];
+uniform float waveRadii[40];
+uniform vec4 waveBlend[40];
+uniform float waveKinds[40];
+uniform float waveAges[40];
+uniform float waveTravelAges[40];
+uniform float waveWeights[40];
 
 void main() {
     vec3 p = normalize(vPosition);
     vec3 displacement = vec3(0.);
     vec3 pigment = vec3(0.);
     float density = 0.;
-    for (int i=0; i<20; i++) {
+    for (int i=0; i<40; i++) {
         if (waves[i].a != -2.) {
             float strength = abs(waves[i].a);
-            float radius = .04 + strength*.12;
+            float radius = waveRadii[i] > 0. ? waveRadii[i] : .04 + strength*.12;
             vec3 center = normalize(waves[i].xyz);
             float distanceToOrigin = length(p-center);
             // A softer wake travels beyond the colored source, never across the whole globe.
@@ -68,6 +70,16 @@ void main() {
                     current += vec2(sin(q.y*11.+t*1.7),cos(q.x*13.-t*1.3))*.35;
                 } else {
                     current = vec2(-q.y,q.x)*.85 + vec2(sin(q.y*2.+t*.45),cos(q.x*2.-t*.45))*.35;
+                }
+                if (kind > 4.5) {
+                    vec4 blend = waveBlend[i];
+                    float empathy = max(0.,1.-dot(blend,vec4(1.)));
+                    vec2 swirl = vec2(-q.y,q.x);
+                    current = blend.x*vec2(sin(q.y*4.-t*1.1)*.6,.65+.25*cos(q.x*3.+t))
+                        + blend.y*vec2(sin(q.y*3.+t*.3)*.18,-.7)
+                        + blend.z*(swirl*1.7+vec2(sin(q.y*8.+t*1.5),cos(q.x*7.-t*1.2))*.45)
+                        + blend.w*(swirl*.6+vec2(sin(q.y*11.+t*1.7),cos(q.x*13.-t*1.3))*.35)
+                        + empathy*(swirl*.85+vec2(sin(q.y*2.+t*.45),cos(q.x*2.-t*.45))*.35);
                 }
                 // Push the shared flow outwards at the advancing front; curl its wake.
                 current = outward*(crest*1.3-wake*.25) + current*(.25+wake*.55);
